@@ -1,0 +1,20 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/bg_fon_linear_gradient"
+    android:gravity="center">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/img_content_desc"
+        android:background="@mipmap/ic_logo_start"
+        android:layout_gravity="center"
+        android:scaleType="center"/>
+
+    <TextView
+        android:text="@string/version"
+        style="@style/VersionText"/>
+
+</FrameLayout>
