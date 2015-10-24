@@ -9,16 +9,15 @@
     </style>
 
 
+    <style name="NavigationDrawerStyle">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
     <style name="PreLoadAppTheme" parent="Theme.AppCompat.Light">
@@ -39,6 +38,12 @@
         <item name="android:gravity">center</item>
         <item name="android:layout_gravity">bottom</item>
     </style>
+
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
 </resources>

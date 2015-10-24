@@ -7,8 +7,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="nav_drawer_over">Прочее</string>
     <string name="nav_drawer_settings_item">Настройки</string>
     <string name="nav_drawer_exit_item">Выход</string>
     <string name="nav_drawer_objects_item">Объекты</string>
@@ -16,5 +14,6 @@
     <string name="nav_drawer_passports_item">Паспорта</string>
 
     <string name="version">version 4.0; &#169; COBA 2015</string>
+    <string name="nav_header_logo_text">Группа компаний "СОВА"</string>
 
 </resources>

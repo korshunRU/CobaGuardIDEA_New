@@ -6,6 +6,7 @@
 
     <group
         android:checkableBehavior="single">
+
         <item
             android:id="@+id/nav_drawer_passports_item"
             android:icon="@drawable/ic_drawer_passports_item"

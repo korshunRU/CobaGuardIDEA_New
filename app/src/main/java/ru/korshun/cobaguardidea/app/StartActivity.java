@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Стартовая Activity
@@ -248,8 +249,8 @@ public class StartActivity
             Intent rootActivity =                               new Intent(this.cnt, RootActivity.class);
 
             rootActivity.putExtra("totalPassport",              totalPassport);
-            rootActivity.putExtra("isCreateTempPassportsDir",   isCreateTempPassportsDir);
-            rootActivity.putExtra("isCreateSignalsDir",         isCreateSignalsDir);
+            rootActivity.putExtra("isCreateTempPassportsDir", isCreateTempPassportsDir);
+            rootActivity.putExtra("isCreateSignalsDir", isCreateSignalsDir);
             rootActivity.putExtra("cobaTempPassportsPath",      cobaTempPassportsPath);
             rootActivity.putExtra("cobaSignalsPath",            cobaSignalsPath);
 
