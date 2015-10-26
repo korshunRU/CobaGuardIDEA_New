@@ -2,24 +2,75 @@ package ru.korshun.cobaguardidea.app.fragments;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import ru.korshun.cobaguardidea.app.R;
+import ru.korshun.cobaguardidea.app.Settings;
 
 public class FragmentSettings
-        extends Fragment {
+        extends PreferenceFragment {
 
+
+
+    public final static String SERVER_ADDRESS_KEY =                     "pref_set_server";
+    public final static String SMS_OWNER_KEY =                          "pref_set_sms_sender";
+    public final static String AUTO_UPDATE_KEY =                        "pref_set_auto_update";
+
+
+    public static SharedPreferences.OnSharedPreferenceChangeListener sharedPreferencesListener;
 
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.fragment_settings);
+
+
+
+        //Установки для настройки сервера обновлений
+        final ListPreference setupServer =                              (ListPreference) findPreference(SERVER_ADDRESS_KEY);
+
+        setupServer.setEntries(Settings.SERVERS_IP_ARRAY_LEGEND);
+        setupServer.setEntryValues(Settings.SERVERS_IP_ARRAY);
+        setupServer.setSummary(setupServer.getEntry());
+
+
+
+        //Установки для настройки источника смс
+        final ListPreference setupSmsSender =                           (ListPreference) findPreference(SMS_OWNER_KEY);
+
+        setupSmsSender.setEntries(Settings.SMS_NUMBERS_ARRAY_LEGEND);
+        setupSmsSender.setEntryValues(Settings.SMS_NUMBERS_ARRAY);
+        setupSmsSender.setSummary(setupSmsSender.getEntry());
+
+
+
+        sharedPreferencesListener =                                     new SharedPreferences.OnSharedPreferenceChangeListener() {
+                                                                            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+//                                                                                Toast
+//                                                                                        .makeText(getActivity(), key + " " + prefs.getBoolean(key, true), Toast.LENGTH_LONG)
+//                                                                                        .show();
+
+                                                                                switch (key) {
+                                                                                    case SERVER_ADDRESS_KEY:
+                                                                                        findPreference(key).setSummary(setupServer.getEntry());
+                                                                                        break;
+
+                                                                                    case SMS_OWNER_KEY:
+                                                                                        findPreference(key).setSummary(setupSmsSender.getEntry());
+                                                                                        break;
+                                                                                }
+
+                                                                            }
+                                                                        };
     }
 
 
@@ -29,9 +80,27 @@ public class FragmentSettings
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View v =                                                inflater.inflate(R.layout.fragment_settings, container, false);
+//        View v =                                                inflater.inflate(R.layout.fragment_settings, container, false);
 
-        return v;
+
+
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(sharedPreferencesListener);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener);
     }
 
 
@@ -42,6 +111,12 @@ public class FragmentSettings
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+
+
+
+
+
 
 
 }

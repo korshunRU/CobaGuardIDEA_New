@@ -211,7 +211,7 @@ public class StartActivity
 
             else {
 
-                final String[] STORAGE_DIRS = getStorageDirectories();
+                final String[] STORAGE_DIRS =                   getStorageDirectories();
 
                 for (String STORAGE_DIR : STORAGE_DIRS) {
 
@@ -249,8 +249,8 @@ public class StartActivity
             Intent rootActivity =                               new Intent(this.cnt, RootActivity.class);
 
             rootActivity.putExtra("totalPassport",              totalPassport);
-            rootActivity.putExtra("isCreateTempPassportsDir", isCreateTempPassportsDir);
-            rootActivity.putExtra("isCreateSignalsDir", isCreateSignalsDir);
+            rootActivity.putExtra("isCreateTempPassportsDir",   isCreateTempPassportsDir);
+            rootActivity.putExtra("isCreateSignalsDir",         isCreateSignalsDir);
             rootActivity.putExtra("cobaTempPassportsPath",      cobaTempPassportsPath);
             rootActivity.putExtra("cobaSignalsPath",            cobaSignalsPath);
 
