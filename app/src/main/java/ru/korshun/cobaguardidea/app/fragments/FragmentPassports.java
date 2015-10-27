@@ -8,20 +8,26 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import ru.korshun.cobaguardidea.app.R;
+import ru.korshun.cobaguardidea.app.RootActivity;
 
 public class FragmentPassports
         extends Fragment {
 
 
 
+    RootActivity rootActivity;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        rootActivity =                                          (RootActivity) getActivity();
     }
 
 
@@ -36,15 +42,17 @@ public class FragmentPassports
         FloatingActionButton fabPassportsRefresh =              (FloatingActionButton) v.findViewById(R.id.fab_passports_refresh);
         FloatingActionButton fabPassportsUpdate =               (FloatingActionButton) v.findViewById(R.id.fab_passports_update);
 
-//        fabPassportsRefresh.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar
-//                        .make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null)
-//                        .show();
-//            }
-//        });
+        fabPassportsUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                MenuItem updateItem =                           rootActivity.getMenuItemFromTitle(getResources().getString(R.string.nav_drawer_passports_update_item));
+
+                updateItem.setChecked(true);
+                rootActivity.onNavigationItemSelected(updateItem);
+
+            }
+        });
 
 
         return v;

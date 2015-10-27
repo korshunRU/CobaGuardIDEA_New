@@ -5,8 +5,9 @@
     android:layout_height="match_parent">
 
     <ListPreference
-        android:key="pref_set_server"
-        android:title="@string/pref_set_server_title">
+        android:key="pref_view_passports_path"
+        android:title="@string/pref_view_passports_path_title"
+        android:enabled="false">
     </ListPreference>
 
     <ListPreference
@@ -14,9 +15,24 @@
         android:title="@string/pref_set_sms_sender_title">
     </ListPreference>
 
+    <ListPreference
+        android:key="pref_set_server"
+        android:title="@string/pref_set_server_title"
+        android:defaultValue="false">
+    </ListPreference>
+
     <SwitchPreference
         android:key="pref_set_auto_update"
         android:title="@string/pref_set_auto_update_title"
-        android:summary="@string/pref_set_auto_update_summary"/>
+        android:summary="@string/pref_set_auto_update_summary"
+        android:defaultValue="false"/>
+
+    <SwitchPreference
+        android:key="pref_set_auto_update_type"
+        android:title="@string/pref_set_auto_update_type_title"
+        android:summary="@string/pref_set_auto_update_type_summary"
+        android:defaultValue="false"
+        android:dependency="pref_set_auto_update"/>
+
 
 </PreferenceScreen>

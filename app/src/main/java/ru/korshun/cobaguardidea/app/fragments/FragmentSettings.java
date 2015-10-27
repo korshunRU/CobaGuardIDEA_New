@@ -13,15 +13,18 @@ import android.view.ViewGroup;
 
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.Settings;
+import ru.korshun.cobaguardidea.app.StartActivity;
 
 public class FragmentSettings
         extends PreferenceFragment {
 
 
+    public final static String PASSPORTS_PATH_KEY =                     "pref_view_passports_path";
 
     public final static String SERVER_ADDRESS_KEY =                     "pref_set_server";
     public final static String SMS_OWNER_KEY =                          "pref_set_sms_sender";
     public final static String AUTO_UPDATE_KEY =                        "pref_set_auto_update";
+    public final static String AUTO_UPDATE_KEY_TYPE =                   "pref_set_auto_update_type";
 
 
     public static SharedPreferences.OnSharedPreferenceChangeListener sharedPreferencesListener;
@@ -32,6 +35,13 @@ public class FragmentSettings
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
+
+
+
+        //Установки для просмотра расположения папки с паспортами
+        final ListPreference viewPassportsPath =                        (ListPreference) findPreference(PASSPORTS_PATH_KEY);
+
+        viewPassportsPath.setSummary(StartActivity.sharedPreferences.getString(PASSPORTS_PATH_KEY, "-"));
 
 
 

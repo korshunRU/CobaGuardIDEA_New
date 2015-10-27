@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentObjects;
 import ru.korshun.cobaguardidea.app.fragments.FragmentPassports;
+import ru.korshun.cobaguardidea.app.fragments.FragmentPassportsUpdate;
 import ru.korshun.cobaguardidea.app.fragments.FragmentSettings;
 import ru.korshun.cobaguardidea.app.fragments.FragmentSignals;
 
@@ -33,7 +34,8 @@ public class RootActivity
 
 
     private DrawerLayout drawer;
-    public static SharedPreferences sharedPreferences;
+    private Toolbar toolbar;
+    public NavigationView navigationView;
 
 
     @Override
@@ -41,30 +43,17 @@ public class RootActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_root);
 
-        Toolbar toolbar =                                   (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        toolbar =                                           (Toolbar) findViewById(R.id.toolbar);
         drawer =                                            (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        sharedPreferences =                                 PreferenceManager.getDefaultSharedPreferences(this);
-
-//        FloatingActionButton fab =                          (FloatingActionButton) findViewById(R.id.fab_root);
-//
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar
-//                        .make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null)
-//                        .show();
-//            }
-//        });
+        setSupportActionBar(toolbar);
 
         ActionBarDrawerToggle toggle =                      new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView =                     (NavigationView) findViewById(R.id.nav_view);
+        navigationView =                                    (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
@@ -76,9 +65,9 @@ public class RootActivity
             onNavigationItemSelected(firstItem);
         }
 
-        Toast
-                .makeText(this, sharedPreferences.getBoolean(FragmentSettings.AUTO_UPDATE_KEY, true) + "", Toast.LENGTH_LONG)
-                .show();
+//        Toast
+//                .makeText(this, StartActivity.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, "-") + "", Toast.LENGTH_LONG)
+//                .show();
 
     }
 
@@ -110,7 +99,7 @@ public class RootActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
-        Fragment fragment =                                 null;
+        Fragment fragment;
         Bundle bundle =                                     new Bundle();
         FragmentManager fragmentManager =                   getFragmentManager();
 
@@ -121,22 +110,27 @@ public class RootActivity
 
             case R.id.nav_drawer_passports_item:
 
-                fragment =                         new FragmentPassports();
+                fragment =                                  new FragmentPassports();
                 break;
 
             case R.id.nav_drawer_signals_item:
 
-                fragment =                           new FragmentSignals();
+                fragment =                                  new FragmentSignals();
                 break;
 
             case R.id.nav_drawer_objects_item:
 
-                fragment =                           new FragmentObjects();
+                fragment =                                  new FragmentObjects();
                 break;
 
             case R.id.nav_drawer_settings_item:
 
-                fragment =                          new FragmentSettings();
+                fragment =                                  new FragmentSettings();
+                break;
+
+            case R.id.nav_drawer_passports_update_item:
+
+                fragment =                                  new FragmentPassportsUpdate();
                 break;
 
             case R.id.nav_drawer_exit_item:
@@ -150,7 +144,7 @@ public class RootActivity
                 return false;
         }
 
-
+        toolbar.setTitle(item.getTitle());
 
         fragment.setArguments(bundle);
         fragmentManager
@@ -165,6 +159,29 @@ public class RootActivity
 
 
 
+
+
+
+    /**
+     *  Функция ищет пункт в меню боковой панели по его заголовку
+     * @param title                     - заголовок для поиска
+     * @return                          - в случае успеха возвращается MenuItem
+     */
+    public MenuItem getMenuItemFromTitle(String title) {
+
+        for(int x = 0; x < navigationView.getMenu().size(); x++) {
+
+            if(navigationView.getMenu().getItem(x).getTitle().toString().equals(title)) {
+
+                return navigationView.getMenu().getItem(x);
+
+            }
+
+        }
+
+        return null;
+
+    }
 
 
 

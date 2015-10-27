@@ -3,11 +3,13 @@ package ru.korshun.cobaguardidea.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import java.io.File;
@@ -15,6 +17,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import ru.korshun.cobaguardidea.app.fragments.FragmentSettings;
 
 /**
  * Стартовая Activity
@@ -24,11 +28,17 @@ public class StartActivity
 
 
 
+    public static SharedPreferences sharedPreferences;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
+        sharedPreferences =                                 PreferenceManager.getDefaultSharedPreferences(this);
 
 //        this.deleteDatabase(Settings.DB_NAME);
 
@@ -174,10 +184,10 @@ public class StartActivity
         /**
          *  Проверка директории с паспортами
          */
-        private void checkCobaDir(Context cnt) {
+        private void checkCobaDir() {
 
-            passportsDir =                                       Functions.getPrefOption(Settings.PASSPORTS_DIR, this.cnt) != null ?
-                                                                    Functions.getPrefOption(Settings.PASSPORTS_DIR, this.cnt) + File.separator + Settings.COBA_PASSPORTS_PATH :
+            passportsDir =                                      sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) != null ?
+                                                                    sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) :
                                                                     null;
 
             cobaTempPassportsPath =                             getExternalCacheDir() != null ?
@@ -218,7 +228,8 @@ public class StartActivity
 //                    Log.d(Settings.LOG_TAG, STORAGE_DIR + " - " + new File(STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH).isDirectory());
 
                     if (new File(STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH).isDirectory()) {
-                        Functions.setPrefOption(Settings.PASSPORTS_DIR, STORAGE_DIR, cnt);
+//                        Functions.setPrefOption(Settings.PASSPORTS_DIR, STORAGE_DIR, cnt);
+                        sharedPreferences.edit().putString(FragmentSettings.PASSPORTS_PATH_KEY, STORAGE_DIR  + File.separator + Settings.COBA_PASSPORTS_PATH).apply();
                         totalPassport =                         new File(STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH).listFiles().length - 1;
                         break;
                     }
@@ -237,7 +248,7 @@ public class StartActivity
         @Override
         protected Void doInBackground(Void... params) {
 
-            checkCobaDir(cnt);
+            checkCobaDir();
             clearCacheDir();
 
             return null;

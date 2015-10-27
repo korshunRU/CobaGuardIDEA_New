@@ -9,6 +9,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="nav_drawer_settings_item">Настройки</string>
+    <string name="nav_drawer_passports_update_item">Обновление</string>
     <string name="nav_drawer_exit_item">Выход</string>
     <string name="nav_drawer_objects_item">Объекты</string>
     <string name="nav_drawer_signals_item">Сигналы</string>
@@ -24,5 +25,9 @@
 
     <string name="pref_set_auto_update_title">Автообновление паспортов</string>
     <string name="pref_set_auto_update_summary">Обновление автоматически запускается при подключении к интернету</string>
+    <string name="pref_view_passports_path_title">Расположение паспортов</string>
+    <string name="pref_set_auto_update_type_title">Автообновление только по wi-fi</string>
+    <string name="pref_set_auto_update_type_summary">Автообновление запускается только через wi-fi соединение</string>
+
 
 </resources>

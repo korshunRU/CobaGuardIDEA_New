@@ -24,6 +24,10 @@
             android:icon="@drawable/ic_drawer_settings_item"
             android:title="@string/nav_drawer_settings_item" />
         <item
+            android:id="@+id/nav_drawer_passports_update_item"
+            android:icon="@drawable/ic_drawer_passports_update_item"
+            android:title="@string/nav_drawer_passports_update_item" />
+        <item
             android:id="@+id/nav_drawer_exit_item"
             android:icon="@drawable/ic_drawer_exit_item"
             android:title="@string/nav_drawer_exit_item" />
