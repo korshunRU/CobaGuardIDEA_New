@@ -2,19 +2,21 @@ package ru.korshun.cobaguardidea.app;
 
 
 
-import android.app.Fragment;
-import android.content.SharedPreferences;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
-import android.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import java.util.List;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentObjects;
 import ru.korshun.cobaguardidea.app.fragments.FragmentPassports;
@@ -32,10 +34,18 @@ public class RootActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
 
+    private android.support.v4.app.Fragment     fragment =                          null;
+    private android.app.Fragment                nativeFragment =                    null;
 
-    private DrawerLayout drawer;
-    private Toolbar toolbar;
-    public NavigationView navigationView;
+
+    private DrawerLayout                        drawer;
+    private Toolbar                             toolbar;
+    public NavigationView                       navigationView;
+
+    public static final String                  PI_REQUEST =                        "piRequest";
+
+
+    public static SimpleAdapter                passportsListAdapter =              null;
 
 
     @Override
@@ -73,6 +83,25 @@ public class RootActivity
 
 
 
+    /**
+     *  Здесь, значит, делается следующая херня: всем фрагментам отсылается то, что пришло от
+     *  сервиса. Любого. А в самом фрагменте уже будем ловить данные и смотреть, что это и для
+     *  чего прилетело
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        List<android.support.v4.app.Fragment> fragments = getSupportFragmentManager().getFragments();
+
+
+        for(android.support.v4.app.Fragment f : fragments) {
+            if (f != null) {
+                f.onActivityResult(requestCode, resultCode, data);
+            }
+        }
+
+    }
+
 
 
 
@@ -85,7 +114,7 @@ public class RootActivity
         }
 
         else {
-            super.onBackPressed();
+            createConfirmDialog();
         }
 
     }
@@ -99,9 +128,8 @@ public class RootActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
-        Fragment fragment;
+        boolean isSettingsFragment =                        false;
         Bundle bundle =                                     new Bundle();
-        FragmentManager fragmentManager =                   getFragmentManager();
 
         // Handle navigation view item clicks here.
         int id =                                            item.getItemId();
@@ -125,7 +153,8 @@ public class RootActivity
 
             case R.id.nav_drawer_settings_item:
 
-                fragment =                                  new FragmentSettings();
+                isSettingsFragment =                        true;
+                nativeFragment =                            new FragmentSettings();
                 break;
 
             case R.id.nav_drawer_passports_update_item:
@@ -134,7 +163,7 @@ public class RootActivity
                 break;
 
             case R.id.nav_drawer_exit_item:
-                finish();
+                createConfirmDialog();
                 return false;
 
             default:
@@ -146,17 +175,70 @@ public class RootActivity
 
         toolbar.setTitle(item.getTitle());
 
-        fragment.setArguments(bundle);
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.container, fragment)
-                .commit();
+        if(isSettingsFragment) {
 
+            if(fragment != null) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .remove(fragment)
+                        .commit();
+            }
+
+            nativeFragment.setArguments(bundle);
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container, nativeFragment)
+                    .commit();
+
+        }
+
+        else {
+
+            if (nativeFragment != null) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .remove(nativeFragment)
+                        .commit();
+                nativeFragment =                            null;
+            }
+
+            fragment.setArguments(bundle);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container, fragment)
+                    .commit();
+
+        }
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+
+
+
+
+    /**
+     *  СОздание диалогового окна, в котором запрашивается подтверждение выхода
+     */
+    private void createConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(getResources().getText(R.string.confirm_question))
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                })
+                .create()
+                .show();
+    }
 
 
 

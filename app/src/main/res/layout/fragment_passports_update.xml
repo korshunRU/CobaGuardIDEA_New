@@ -6,9 +6,184 @@
     tools:context="ru.korshun.cobaguardidea.app.fragments.FragmentPassports">
 
 
-    <TextView
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/nav_drawer_passports_update_item" />
+        android:padding="@dimen/margin_16">
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+
+
+            <!--Блок информации о последнем обновлении-->
+            <LinearLayout
+                android:id="@+id/layout_passports_last_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/margin_8"
+                android:background="@drawable/border_bottom">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/passports_update_last_update_title"
+                    android:textColor="@color/third_text"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tv_last_update_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/third_text"
+                    android:textSize="17sp"
+                    tools:text="25.11.2015"/>
+
+            </LinearLayout>
+            <!--Блок информации о последнем обновлении-->
+
+
+
+
+            <!--Блок обновления всех паспортов-->
+            <LinearLayout
+                android:id="@+id/layout_passports_update_all"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/margin_8"
+                android:background="@drawable/border_bottom">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/passports_update_all_title"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/passports_update_summary"
+                    android:textColor="@color/third_text"
+                    android:textSize="15sp"/>
+
+            </LinearLayout>
+            <!--Блок обновления всех паспортов-->
+
+
+
+
+            <!--Блок обновления одного паспорта-->
+            <LinearLayout
+                android:id="@+id/layout_passports_update_object"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/margin_8"
+                android:background="@drawable/border_bottom">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/passports_update_object_title"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/passports_update_summary"
+                    android:textColor="@color/third_text"
+                    android:textSize="15sp"/>
+
+            </LinearLayout>
+            <!--Блок обновления одного паспорта-->
+
+
+
+
+            <!--Блок статуса обновления-->
+            <LinearLayout
+                android:id="@+id/layout_passports_update_process"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/margin_8"
+                android:background="@drawable/border_bottom"
+                android:layout_marginTop="@dimen/margin_16"
+                android:visibility="invisible">
+
+
+                <TextView
+                    android:id="@+id/tv_files_load_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/passports_update_proccess_title"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="18sp"/>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_files_load"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:text="@string/passports_update_procces_start_count"
+                        tools:text="12/123"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:id="@+id/tv_files_load_proc"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:gravity="end"
+                        android:text="@string/passports_update_procces_start_proc"
+                        tools:text="13%"
+                        android:layout_weight="1"/>
+
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/pb_files_load"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:progress="0"
+                    android:secondaryProgress="0"/>
+
+
+            </LinearLayout>
+            <!--Блок статуса обновления-->
+
+
+
+        </LinearLayout>
+
+
+
+    </ScrollView>
+
+
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="@string/nav_drawer_passports_update_item" />-->
 
 </FrameLayout>

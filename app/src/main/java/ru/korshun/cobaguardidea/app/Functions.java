@@ -1,6 +1,7 @@
 package ru.korshun.cobaguardidea.app;
 
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -22,11 +23,11 @@ public final class Functions {
      * @param tag               - ссылка на метку опции
      * @param cnt               - ссылка на контекст
      */
-    public static void setPrefOption(String tag, String str, Context cnt) {
-        SharedPreferences.Editor ed = cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).edit();
-        ed.putString(tag, String.valueOf(str));
-        ed.apply();
-    }
+//    public static void setPrefOption(String tag, String str, Context cnt) {
+//        SharedPreferences.Editor ed = cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).edit();
+//        ed.putString(tag, String.valueOf(str));
+//        ed.apply();
+//    }
 
 
 
@@ -40,11 +41,11 @@ public final class Functions {
      * @param cnt               - ссылка на контекст
      * @return                  - в случае успеха возвращается значение
      */
-    public static String getPrefOption(String tag, Context cnt) {
-        return cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).contains(tag) ?
-                cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).getString(tag, "") :
-                null;
-    }
+//    public static String getPrefOption(String tag, Context cnt) {
+//        return cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).contains(tag) ?
+//                cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).getString(tag, "") :
+//                null;
+//    }
 
 
 
@@ -58,9 +59,9 @@ public final class Functions {
      * @param cnt               - ссылка на контекст
      * @return                  - в случае успеха возвращается TRUE
      */
-    public static boolean deletePrefOption(String tag, Context cnt) {
-        return cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).edit().remove(tag).commit();
-    }
+//    public static boolean deletePrefOption(String tag, Context cnt) {
+//        return cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).edit().remove(tag).commit();
+//    }
 
 
 
@@ -127,6 +128,32 @@ public final class Functions {
     }
 
 
+
+
+
+
+    /**
+     *  Функция проверяет работает ли сервис в данный момент
+     * @param serviceClass      - ссылка на класс сервиса
+     * @param cnt               - ссылка на Context
+     * @return                  - в случае если служба найдена среди работающих возвращается true
+     */
+    public static boolean isServiceRunning(Class<?> serviceClass, Context cnt) {
+        ActivityManager manager = (ActivityManager) cnt.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
 
 
 

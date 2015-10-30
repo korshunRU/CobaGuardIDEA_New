@@ -20,7 +20,6 @@ public class FragmentSettings
 
 
     public final static String PASSPORTS_PATH_KEY =                     "pref_view_passports_path";
-
     public final static String SERVER_ADDRESS_KEY =                     "pref_set_server";
     public final static String SMS_OWNER_KEY =                          "pref_set_sms_sender";
     public final static String AUTO_UPDATE_KEY =                        "pref_set_auto_update";

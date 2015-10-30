@@ -13,11 +13,13 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import ru.korshun.cobaguardidea.app.fragments.FragmentPassportsUpdate;
 import ru.korshun.cobaguardidea.app.fragments.FragmentSettings;
 
 /**
@@ -30,6 +32,11 @@ public class StartActivity
 
     public static SharedPreferences sharedPreferences;
 
+    public final static String PASSPORTS_COUNT_KEY =                    "pref_passports_count";
+    public final static String CREATE_TEMP_PASSPORTS_DIR_KEY =          "pref_create_temp_passports_dir";
+    public final static String CREATE_TEMP_SIGNALS_DIR_KEY =            "pref_create_temp_signals_dir";
+    public final static String TEMP_PASSPORTS_DIR_KEY =                 "pref_temp_passports_dir";
+    public final static String TEMP_SIGNALS_DIR_KEY =                   "pref_temp_signals_dir";
 
 
 
@@ -38,17 +45,55 @@ public class StartActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        sharedPreferences =                                 PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences =                                             PreferenceManager.getDefaultSharedPreferences(this);
+
+
+
+        // Если дата последнего обновления не задана - устанавливаем ее в текущее время
+        if(sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0) == 0) {
+            sharedPreferences
+                    .edit()
+                    .putLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, Calendar.getInstance().getTimeInMillis())
+                    .apply();
+        }
+
+
+
+        // Если сервер обновлений не задан - берем из соответствующего массива первое значение и записываем
+        if(StartActivity.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null) == null) {
+            sharedPreferences
+                    .edit()
+                    .putString(FragmentSettings.SERVER_ADDRESS_KEY, Settings.SERVERS_IP_ARRAY[0])
+                    .apply();
+        }
+
+
+
+        // Если номер отправителя смс не задан - берем из соответствующего массива первое значение и записываем
+        if(StartActivity.sharedPreferences.getString(FragmentSettings.SMS_OWNER_KEY, null) == null) {
+            sharedPreferences
+                    .edit()
+                    .putString(FragmentSettings.SMS_OWNER_KEY, Settings.SMS_NUMBERS_ARRAY[0])
+                    .apply();
+        }
+
+
 
 //        this.deleteDatabase(Settings.DB_NAME);
 
-        DbHelper dbHelper =                                 new DbHelper(StartActivity.this, Settings.DB_NAME, Settings.DB_VERSION);
-        SQLiteDatabase db =                                 dbHelper.getWritableDatabase();
+
+
+        DbHelper dbHelper =                                             new DbHelper(StartActivity.this, Settings.DB_NAME, Settings.DB_VERSION);
+        SQLiteDatabase db =                                             dbHelper.getWritableDatabase();
+
+
 
         db.execSQL("DELETE FROM " + DbHelper.DB_TABLE_SIGNALS + " WHERE date < " + (System.currentTimeMillis() - (Settings.DB_SIGNALS_LIFE_HOURS * 60 * 60 * 1000)));
         db.execSQL("DELETE FROM " + DbHelper.DB_TABLE_GUARD + " WHERE date < " + (System.currentTimeMillis() - (Settings.DB_GUARD_LIFE_HOURS * 60 * 60 * 1000)));
 
         dbHelper.close();
+
+
 
         new CheckDir(this).execute();
 
@@ -159,6 +204,18 @@ public class StartActivity
             if(!rv.contains("/storage/sdcard0")) {
                 rv.add("/storage/sdcard0");
             }
+            if(!rv.contains("/storage/sdcard2")) {
+                rv.add("/storage/sdcard2");
+            }
+            if(!rv.contains("/mnt/sdcard0")) {
+                rv.add("/mnt/sdcard0");
+            }
+            if(!rv.contains("/mnt/sdcard1")) {
+                rv.add("/mnt/sdcard1");
+            }
+            if(!rv.contains("/mnt/sdcard2")) {
+                rv.add("/mnt/sdcard2");
+            }
             return rv.toArray(new String[rv.size()]);
         }
 
@@ -229,7 +286,10 @@ public class StartActivity
 
                     if (new File(STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH).isDirectory()) {
 //                        Functions.setPrefOption(Settings.PASSPORTS_DIR, STORAGE_DIR, cnt);
-                        sharedPreferences.edit().putString(FragmentSettings.PASSPORTS_PATH_KEY, STORAGE_DIR  + File.separator + Settings.COBA_PASSPORTS_PATH).apply();
+                        sharedPreferences
+                                .edit()
+                                .putString(FragmentSettings.PASSPORTS_PATH_KEY, STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH)
+                                .apply();
                         totalPassport =                         new File(STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH).listFiles().length - 1;
                         break;
                     }
@@ -259,11 +319,36 @@ public class StartActivity
 
             Intent rootActivity =                               new Intent(this.cnt, RootActivity.class);
 
-            rootActivity.putExtra("totalPassport",              totalPassport);
-            rootActivity.putExtra("isCreateTempPassportsDir",   isCreateTempPassportsDir);
-            rootActivity.putExtra("isCreateSignalsDir",         isCreateSignalsDir);
-            rootActivity.putExtra("cobaTempPassportsPath",      cobaTempPassportsPath);
-            rootActivity.putExtra("cobaSignalsPath",            cobaSignalsPath);
+            sharedPreferences
+                    .edit()
+                    .putInt(PASSPORTS_COUNT_KEY,                totalPassport)
+                    .apply();
+
+            sharedPreferences
+                    .edit()
+                    .putBoolean(CREATE_TEMP_PASSPORTS_DIR_KEY,  isCreateTempPassportsDir)
+                    .apply();
+
+            sharedPreferences
+                    .edit()
+                    .putBoolean(CREATE_TEMP_SIGNALS_DIR_KEY,    isCreateSignalsDir)
+                    .apply();
+
+            sharedPreferences
+                    .edit()
+                    .putString(TEMP_PASSPORTS_DIR_KEY,          cobaTempPassportsPath)
+                    .apply();
+
+            sharedPreferences
+                    .edit()
+                    .putString(TEMP_SIGNALS_DIR_KEY,            cobaSignalsPath)
+                    .apply();
+
+//            rootActivity.putExtra("totalPassport",              totalPassport);
+//            rootActivity.putExtra("isCreateTempPassportsDir",   isCreateTempPassportsDir);
+//            rootActivity.putExtra("isCreateSignalsDir",         isCreateSignalsDir);
+//            rootActivity.putExtra("cobaTempPassportsPath",      cobaTempPassportsPath);
+//            rootActivity.putExtra("cobaSignalsPath",            cobaSignalsPath);
 
             startActivity(rootActivity);
 
