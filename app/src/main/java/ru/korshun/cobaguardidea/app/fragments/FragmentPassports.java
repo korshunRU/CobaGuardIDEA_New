@@ -70,7 +70,7 @@ public class FragmentPassports
 
 
         passportsPath =                                                         StartActivity.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null);
-        final String tempPassportsPath =                                              StartActivity.sharedPreferences.getString(StartActivity.TEMP_PASSPORTS_DIR_KEY, null);
+        final String tempPassportsPath =                                        StartActivity.sharedPreferences.getString(StartActivity.TEMP_PASSPORTS_DIR_KEY, null);
 
         FloatingActionButton fabPassportsRefresh =                              (FloatingActionButton) v.findViewById(R.id.fab_passports_refresh);
         FloatingActionButton fabPassportsUpdate =                               (FloatingActionButton) v.findViewById(R.id.fab_passports_update);

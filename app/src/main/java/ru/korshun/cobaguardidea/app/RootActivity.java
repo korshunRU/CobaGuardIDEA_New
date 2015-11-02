@@ -44,8 +44,14 @@ public class RootActivity
 
     public static final String                  PI_REQUEST =                        "piRequest";
 
+    public static final int                     CODE_REQUEST_PASSPORTS_UPDATE =     0;
+    public static final int                     CODE_REQUEST_SIGNALS =              1;
+    public static final int                     CODE_REQUEST_OBJECTS =              2;
 
-    public static SimpleAdapter                passportsListAdapter =              null;
+    public static SimpleAdapter                 passportsListAdapter =              null;
+    public static SimpleAdapter                 signalsListAdapter =                null;
+    public static SimpleAdapter                 objectsListAdapter =                null;
+
 
 
     @Override

@@ -28,11 +28,12 @@
     <string name="pref_view_passports_path_title">Расположение паспортов</string>
     <string name="pref_set_auto_update_type_title">Автообновление только по wi-fi</string>
     <string name="pref_set_auto_update_type_summary">Автообновление запускается только через wi-fi соединение</string>
+
     <string name="passports_update_last_update_title">Последнее обновление</string>
     <string name="passports_update_all_title">Обновление всех паспортов</string>
     <string name="passports_update_summary">Долгое нажатие для запуска</string>
     <string name="passports_update_object_title">Обновление объекта</string>
-    <string name="passports_update_connect_title">Соединение …</string>
+    <string name="passports_update_connect_title">Соединяемся …</string>
     <string name="passports_update_proccess_title">Идет обновление …</string>
     <string name="passports_update_complite_title">Обновление завершено</string>
     <string name="passports_update_procces_start_count">0/0</string>
@@ -43,11 +44,6 @@
     <string name="no_server_ip">Укажите адрес сервера</string>
     <string name="no_server_connect">Сервер недоступен</string>
 
-
-    <string name="update_connecting">Соединяемся …</string>
-    <string name="update_set_progress">Загрузка: %s</string>
-    <string name="update_continue">Идет обновление …</string>
-    <string name="update_done">Обновление завершено</string>
     <string name="update_double_error">Обновление уже запущено</string>
     <string name="update_no_files">Файлов для обновления нет</string>
 
@@ -61,5 +57,12 @@
     <string name="passports_count_error">ПАСПОРТА НЕ ОБНАРУЖЕНЫ</string>
     <string name="sms_scan_title">Сканируем смс …</string>
 
+    <string name="object_number_hint">№ объекта</string>
+    <string name="dialog_object_dwnl_title">Объект для загрузки</string>
+    <string name="guard_off_button">Снять</string>
+    <string name="err_data_object_number">Некорректный номер объекта</string>
+    <string name="signals_status_complite">Файл получен</string>
+    <string name="signals_status_wait">Ожидание загрузки …</string>
+    <string name="status_auth_error">Ошибка авторизации на сервере</string>
 
 </resources>

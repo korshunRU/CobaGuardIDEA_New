@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +25,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
@@ -126,61 +128,72 @@ public class UpdatePassportsService
         serverIp =                                      StartActivity.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null);
         lastUpdatedDate =                               StartActivity.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0);
 
+        nm =                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder =                                      new NotificationCompat.Builder(getApplicationContext())
+                                                                        .setSmallIcon(R.mipmap.ic_app_ico)
+                                                                        .setOngoing(true);
+
         if(checkConnection()) {
+
+            mBuilder
+                    .setContentTitle(getResources().getString(R.string.passports_update_connect_title))
+                    .setProgress(1, 1, true);
+
+            nm
+                    .notify(notificationId, mBuilder.build());
+
+
+            try {
+                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+                try {
+                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+                } catch (PendingIntent.CanceledException e1) {
+                    e1.printStackTrace();
+                    try {
+                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+                    } catch (PendingIntent.CanceledException e2) {
+                        e2.printStackTrace();
+                    }
+                }
+            }
+
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
 
-                    try {
-                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                        stopSelf(startId);
-                    }
+                    getFiles(startId, objectToDownload);
 
-                    try {
-                        TimeUnit.SECONDS.sleep(3);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        stopSelf(startId);
-                    }
 
-                    int count = 30;
 
-                    try {
-                        piTotal.send(count);
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                        stopSelf(startId);
-                    }
 
-                    for(int x = 0; x < count; x++) {
 
-                        try {
-                            TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            stopSelf(startId);
-                        }
 
-                        try {
-                            piCounter.send(x + 1);
-                            piTotal.send(count);
-                        } catch (PendingIntent.CanceledException e) {
-                            e.printStackTrace();
-                            stopSelf(startId);
-                        }
 
-                    }
-
-                    try {
-                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                    } finally {
-                        stopSelf(startId);
-                    }
+//
+//                    try {
+//                        TimeUnit.SECONDS.sleep(3);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        stopSelf(startId);
+//                    }
+//
+//                    int count = 30;
+//
+//
+//                    for(int x = 0; x < count; x++) {
+//
+//                        try {
+//                            TimeUnit.SECONDS.sleep(1);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                            stopSelf(startId);
+//                        }
+//
+//
+//                    }
 
                 }
             }).start();
@@ -212,6 +225,7 @@ public class UpdatePassportsService
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 
 
 
@@ -262,170 +276,459 @@ public class UpdatePassportsService
      */
     private void getFiles(int startId, int objectNumber) {
 
-        allFilesSocket =                                    new Socket();
+        allFilesSocket =                                new Socket();
         int total;
 
+
+
+        // СОединение с сервером и обработка ошибки соединения
         try {
-
             allFilesSocket.connect(new InetSocketAddress(InetAddress.getByName(serverIp), Settings.PORT), Settings.CONNECTION_TIMEOUT_PASSPORTS);
+        } catch (IOException e) {
+            e.printStackTrace();
 
-            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+            mBuilder.setContentTitle(getResources().getString(R.string.no_server_connect))
+                    .setProgress(0, 0, false)
+                    .setOngoing(false);
+            nm.notify(notificationId, mBuilder.build());
 
-            in =                                            new BufferedReader(new InputStreamReader(allFilesSocket.getInputStream()));
-            out =                                           new PrintWriter(new BufferedWriter(new OutputStreamWriter(allFilesSocket.getOutputStream())), true);
+            try {
+                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+            } catch (PendingIntent.CanceledException e1) {
+                e1.printStackTrace();
+                try {
+                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+                } catch (PendingIntent.CanceledException e2) {
+                    e2.printStackTrace();
+                    try {
+                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+                    } catch (PendingIntent.CanceledException e3) {
+                        e3.printStackTrace();
+                    }
+                }
+            }
+            stopSelf(startId);
+            return;
+        }
 
-            TelephonyManager tManager =                     (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            String deviceId =                               tManager.getDeviceId();
 
-            if (objectNumber > 0) {
-                out.println("getFile:" + objectNumber + ":" + deviceId);
+
+
+        // СОздание BufferedReader и обработка ошибки создания
+        try {
+            in =                                        new BufferedReader(new InputStreamReader(allFilesSocket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendErrorMsg();
+            try {
+                allFilesSocket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            stopSelf(startId);
+            return;
+        }
+
+
+
+
+        // СОздание PrintWriter и обработка ошибки создания
+        try {
+            out =                                       new PrintWriter(new BufferedWriter(new OutputStreamWriter(allFilesSocket.getOutputStream())), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendErrorMsg();
+            try {
+                allFilesSocket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            stopSelf(startId);
+            return;
+        }
+
+
+
+        TelephonyManager tManager =                     (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        String deviceId =                               tManager.getDeviceId();
+
+
+
+        if (objectNumber > 0) {
+            out.println("getFile:" + objectNumber + ":" + deviceId);
+        }
+
+
+
+        else {
+            out.println("getFilesNew:" + lastUpdatedDate + ":" + deviceId);
+        }
+
+
+
+        out.flush();
+
+
+
+
+
+        // Чтение ответа сервера на запрос количества файлов и обработка ошибки
+        try {
+            total =                                     Integer.parseInt(this.in.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendErrorMsg();
+            try {
+                allFilesSocket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            stopSelf(startId);
+            return;
+
+        }
+
+
+
+
+
+
+        // Если файлов для обновления нет - сообщаем об этом и грохаем соединение с сервером
+        if(total == 0) {
+
+            disconnectFromServer();
+
+            mBuilder.setContentTitle(getResources().getString(R.string.update_no_files))
+                    .setProgress(0, 0, false)
+                    .setOngoing(false);
+
+            nm.notify(notificationId, mBuilder.build());
+
+            try {
+                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+                try {
+                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+                } catch (PendingIntent.CanceledException e1) {
+                    e1.printStackTrace();
+                    try {
+                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+                    } catch (PendingIntent.CanceledException e2) {
+                        e2.printStackTrace();
+                    }
+                }
             }
 
-            else {
-                out.println("getFilesNew:" + lastUpdatedDate + ":" + deviceId);
+            try {
+                allFilesSocket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
 
-            out.flush();
+            stopSelf(startId);
+            return;
+        }
 
-            total =                                         Integer.parseInt(this.in.readLine());
 
-            if(total == 0) {
 
-                disconnectFromServer();
 
-                mBuilder.setContentTitle(getResources().getString(R.string.update_no_files))
-                        .setProgress(0, 0, false)
-                        .setOngoing(false);
 
-                nm.notify(notificationId, mBuilder.build());
+        try {
+            piTotal.send(total);
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+            try {
+                piTotal.send(total);
+            } catch (PendingIntent.CanceledException e1) {
+                e1.printStackTrace();
+                try {
+                    piTotal.send(total);
+                } catch (PendingIntent.CanceledException e2) {
+                    e2.printStackTrace();
+                }
+            }
+        }
 
-                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
 
+
+
+
+
+        out.println("download");
+        out.flush();
+
+        isRunning =                                     true;
+
+
+
+        // Начинаем передачу файлов
+        for(int x = 1; x <= total; x++) {
+
+            if (!isRunning) {
                 return;
             }
 
-            out.println("download");
-            out.flush();
+            String fileName, fileSize;
 
-            isRunning =                                     true;
 
-            for(int x = 1; x <= total; x++) {
+            // ПОлучаем ответ сервера об имени файла и его размере и обработка ошибки
+            try {
+                fileName =                              this.in.readLine();
+                fileSize =                              this.in.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+                sendErrorMsg();
 
-                if(!isRunning) {
-                    return;
+                try {
+                    allFilesSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
 
-                String fileName =                           this.in.readLine();
-                String fileSize =                           this.in.readLine();
+                stopSelf(startId);
+                return;
+            }
 
-                Socket serverFile =                         new Socket();
+
+            Socket serverFile =                         new Socket();
+
+            // СОединение с сервером для скачивания и обработка ошибки соединения
+            try {
                 serverFile.connect(new InetSocketAddress(InetAddress.getByName(serverIp), Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_PASSPORTS);
+            } catch (IOException e) {
+                e.printStackTrace();
+                sendErrorMsg();
 
-                byte[] buffer =                             new byte[8 * 1024];
+                try {
+                    allFilesSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
 
-                FileOutputStream fos =                      new FileOutputStream(
-                                                                StartActivity
+                stopSelf(startId);
+                return;
+            }
+
+
+            byte[] buffer =                             new byte[8 * 1024];
+
+
+            // СОздание файла, в который будет записанные принятые данные с сервера т обработка оишбки
+            FileOutputStream fos;
+            try {
+                fos =                                   new FileOutputStream(
+                        StartActivity
                                                                         .sharedPreferences
                                                                         .getString(FragmentSettings.PASSPORTS_PATH_KEY, null) + File.separator + fileName
-                                                            );
-                BufferedOutputStream bos =                  new BufferedOutputStream(fos);
-                DataInputStream dis =                       new DataInputStream(serverFile.getInputStream());
+                                                        );
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                sendErrorMsg();
 
-                int count, totalLength =                    0;
+                try {
+                    allFilesSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                stopSelf(startId);
+                return;
+            }
+
+
+            // СОздание буфера для принятия информации с сервера т обработка оишбки
+            BufferedOutputStream bos =                  new BufferedOutputStream(fos);
+            DataInputStream dis;
+            try {
+                dis =                                   new DataInputStream(serverFile.getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+                sendErrorMsg();
+
+                try {
+                    allFilesSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                stopSelf(startId);
+                return;
+            }
+
+
+            int count, totalLength =                    0;
+
+
+
+
+
+            // Прием файла и обработка ошибки
+            try {
 
                 while ((count = dis.read(buffer, 0, buffer.length)) != -1) {
 
-                    totalLength +=                          count;
+                    totalLength +=                      count;
                     bos.write(buffer, 0, count);
                     bos.flush();
 
                     if (totalLength == Long.parseLong(fileSize)) {
 
-                        String t =                                  new Formatter()
-                                .format(
-                                        getResources().getString(R.string.update_set_progress),
-                                        String.valueOf(x + "/" + total)
-                                )
-                                .toString();
-
-                        mBuilder.setContentTitle(getResources().getString(R.string.update_continue))
-                                .setContentText(t)
+                        mBuilder.setContentTitle(getResources().getString(R.string.passports_update_proccess_title))
+                                .setContentText(x + "/" + total)
                                 .setProgress(total, x, false)
                                 .setNumber(x);
 
                         nm.notify(notificationId, mBuilder.build());
 
 
+                        try {
+                            piCounter.send(x);
+                            piTotal.send(total);
+                        } catch (PendingIntent.CanceledException e) {
+                            e.printStackTrace();
+                            try {
+                                piCounter.send(x);
+                                piTotal.send(total);
+                            } catch (PendingIntent.CanceledException e1) {
+                                e1.printStackTrace();
+                                try {
+                                    piCounter.send(x);
+                                    piTotal.send(total);
+                                } catch (PendingIntent.CanceledException e2) {
+                                    e2.printStackTrace();
+                                }
+                            }
+                        }
+
+
+
                         break;
                     }
 
+
                 }
 
-                fos.close();
-                bos.close();
-                dis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                sendErrorMsg();
 
-                serverFile.close();
+                try {
+                    allFilesSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                stopSelf(startId);
+                return;
+            } finally {
+
+                // Закрытие всех буферов
+                try {
+                    fos.close();
+                    bos.close();
+                    dis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                // Отключение от порта передачи файлов
+                try {
+                    serverFile.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
 
             }
 
 
-            disconnectFromServer();
 
+        }
+
+
+
+
+        // Отключение от сервера
+        disconnectFromServer();
+
+        mBuilder.setContentTitle(getResources().getString(R.string.passports_update_complite_title))
+                .setProgress(0, 0, false)
+                .setOngoing(false);
+
+        nm.notify(notificationId, mBuilder.build());
+
+        try {
             piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-
-            mBuilder.setContentTitle(getResources().getString(R.string.update_done))
-                    .setProgress(0, 0, false)
-                    .setOngoing(false);
-
-            nm.notify(notificationId, mBuilder.build());
-
-
-            //  Ставим метку о последнем обновлении файлов
-            if(isRunning) {
-
-                if(objectNumber == 0) {
-//                    Functions.setPrefOption(Settings.lastUpdatedDate, String.valueOf(Calendar.getInstance().getTimeInMillis()), getApplicationContext());
-                    StartActivity
-                            .sharedPreferences
-                            .edit()
-                            .putString(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, String.valueOf(Calendar.getInstance().getTimeInMillis()))
-                            .apply();
-                }
-
-                isRunning =                                 false;
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            mBuilder.setContentTitle(getResources().getString(R.string.no_server_connect))
-                    .setProgress(0, 0, false)
-                    .setOngoing(false);
-
-            nm.notify(notificationId, mBuilder.build());
-
-            try {
-                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-            } catch (PendingIntent.CanceledException e1) {
-                e1.printStackTrace();
-            }
-
         } catch (PendingIntent.CanceledException e) {
             e.printStackTrace();
             try {
                 piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
             } catch (PendingIntent.CanceledException e1) {
                 e1.printStackTrace();
+                try {
+                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
+                } catch (PendingIntent.CanceledException e2) {
+                    e2.printStackTrace();
+                }
             }
+        }
+
+
+        //  Ставим метку о последнем обновлении файлов
+        if(isRunning) {
+
+            if(objectNumber == 0) {
+                StartActivity
+                        .sharedPreferences
+                        .edit()
+                        .putLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, Calendar.getInstance().getTimeInMillis())
+                        .apply();
+            }
+
+            isRunning =                                 false;
         }
 
 
         stopSelf(startId);
 
 
-
     }
+
+
+
+
+
+
+
+
+    /**
+     *  Функция отправляет сообщение об ошибке в панель нотификации и в приложение в фрагмент с обновлением
+     */
+    private void sendErrorMsg() {
+        mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+                .setProgress(0, 0, false)
+                .setOngoing(false);
+        nm.notify(notificationId, mBuilder.build());
+
+        try {
+            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
+        } catch (PendingIntent.CanceledException e1) {
+            e1.printStackTrace();
+            try {
+                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
+            } catch (PendingIntent.CanceledException e2) {
+                e2.printStackTrace();
+                try {
+                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
+                } catch (PendingIntent.CanceledException e3) {
+                    e3.printStackTrace();
+                }
+            }
+        }
+    }
+
 
 
 

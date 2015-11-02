@@ -6,13 +6,6 @@
     tools:context="ru.korshun.cobaguardidea.app.fragments.FragmentPassports">
 
 
-    <!--<LinearLayout-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="fill_parent"-->
-        <!--android:orientation="vertical">-->
-
-
-
     <ListView
         android:id="@+id/list_passports"
         android:layout_width="match_parent"
@@ -20,14 +13,6 @@
         android:background="@color/transparent"
         android:padding="5dp"/>
 
-
-    <!--</LinearLayout>-->
-
-
-    <!--<TextView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:text="@string/nav_drawer_passports_item" />-->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_passports_refresh"
