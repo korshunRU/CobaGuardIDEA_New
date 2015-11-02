@@ -64,7 +64,7 @@ public final class Settings {
 
 //    public static final String CHANGE_GUARD_NUMBER =            "InternetSMS";
 //    public static final String CHANGE_GUARD_NUMBER =            "+79122271554";
-    public static final String CHANGE_GUARD_NUMBER =            "+79049820133";
+//    public static final String CHANGE_GUARD_NUMBER =            "+79049820133";
 //    public static final String CHANGE_GUARD_NUMBER =            "+79826398186";
 
     public static final int CHECK_SIGNALS_REPEAT_IN_SECONDS =   15;

@@ -18,7 +18,7 @@ public abstract class MyServiceSignalsAndGuard
 
 
 
-    protected final String SERVER_IP =                                 Settings.SERVERS_IP_ARRAY[0];
+    protected final String                              SERVER_IP =                         Settings.SERVERS_IP_ARRAY[0];
 //    protected final String          SERVER_IP =                                 "192.168.43.138";
 
 

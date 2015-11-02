@@ -65,4 +65,15 @@
     <string name="signals_status_wait">Ожидание загрузки …</string>
     <string name="status_auth_error">Ошибка авторизации на сервере</string>
 
+    <string name="guard_off_text">Объект снят с охраны</string>
+    <string name="guard_on_text">Объект под охраной</string>
+
+    <string name="guard_status_on">Успешно поставлен на охрану</string>
+    <string name="guard_status_off">Успешно снят с охраны</string>
+    <string name="guard_status_wait">Ожидание подтверждения …</string>
+    <string name="guard_err_data">ОШИБКА: повторите запрос</string>
+    <string name="guard_query_error">ОШИБКА: обнулите файл</string>
+
+    <string name="err_no_sms_for_guard_off">Смс с данным номером объекта не обнаружена</string>
+
 </resources>

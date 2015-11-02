@@ -226,13 +226,14 @@ public class GetSignalsService
                 if(!connect()) {
                     setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR, objectToCheckSignals, DbHelper.DB_TABLE_SIGNALS);
                     dbHelper.close();
+                    timer.cancel();
                     try {
                         piRequest.send(FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
                     } catch (PendingIntent.CanceledException e1) {
                         e1.printStackTrace();
+                    } finally {
+                        stopSelf(startId);
                     }
-                    timer.cancel();
-                    stopSelf(startId);
 
                     return;
                 }
@@ -261,14 +262,16 @@ public class GetSignalsService
 
                         } catch (IOException e) {
                             e.printStackTrace();
+                            disconnect();
+                            timer.cancel();
                             try {
                                 piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
                             } catch (PendingIntent.CanceledException e1) {
                                 e1.printStackTrace();
+                            } finally {
+                                stopSelf(startId);
                             }
-                            disconnect();
-                            timer.cancel();
-                            stopSelf(startId);
+
                             return;
                         }
 
@@ -282,14 +285,17 @@ public class GetSignalsService
                                 piRequest.send(FragmentSignals.SIGNALS_STATUS_AUTH_ERROR);
                             } catch (PendingIntent.CanceledException e) {
                                 e.printStackTrace();
+                                disconnect();
+                                timer.cancel();
+
                                 try {
                                     piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
                                 } catch (PendingIntent.CanceledException e1) {
                                     e1.printStackTrace();
+                                } finally {
+                                    stopSelf(startId);
                                 }
-                                disconnect();
-                                timer.cancel();
-                                stopSelf(startId);
+
                                 return;
                             }
 
@@ -305,14 +311,16 @@ public class GetSignalsService
                                 fileName =              in.readLine();
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                disconnect();
+                                timer.cancel();
                                 try {
                                     piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
                                 } catch (PendingIntent.CanceledException e1) {
                                     e1.printStackTrace();
+                                } finally {
+                                    stopSelf(startId);
                                 }
-                                disconnect();
-                                timer.cancel();
-                                stopSelf(startId);
+
                                 return;
                             }
 
@@ -324,16 +332,16 @@ public class GetSignalsService
                                 e.printStackTrace();
                                 setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR, objectToCheckSignals, DbHelper.DB_TABLE_SIGNALS);
                                 dbHelper.close();
+                                disconnect();
+                                timer.cancel();
                                 try {
                                     piRequest.send(FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
                                 } catch (PendingIntent.CanceledException e1) {
                                     e1.printStackTrace();
+                                } finally {
+                                    stopSelf(startId);
                                 }
 
-                                disconnect();
-
-                                timer.cancel();
-                                stopSelf(startId);
                                 return;
                             }
 
@@ -366,29 +374,30 @@ public class GetSignalsService
 
                                 setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_COMPLITE, objectNumber, DbHelper.DB_TABLE_SIGNALS);
                                 dbHelper.close();
+                                disconnect();
+                                timer.cancel();
 
                                 try {
                                     piRequest.send(FragmentSignals.SIGNALS_STATUS_COMPLITE);
                                 } catch (PendingIntent.CanceledException e) {
                                     e.printStackTrace();
+                                } finally {
+                                    stopSelf(startId);
                                 }
-
-                                disconnect();
-                                timer.cancel();
-                                stopSelf(startId);
 
                                 return;
 
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                disconnect();
+                                timer.cancel();
                                 try {
                                     piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
                                 } catch (PendingIntent.CanceledException e1) {
                                     e1.printStackTrace();
+                                } finally {
+                                    stopSelf(startId);
                                 }
-                                disconnect();
-                                timer.cancel();
-                                stopSelf(startId);
 
                                 return;
                             }
@@ -412,9 +421,9 @@ public class GetSignalsService
                         piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
                     } catch (PendingIntent.CanceledException e) {
                         e.printStackTrace();
+                    } finally {
+                        stopSelf(startId);
                     }
-
-                    stopSelf(startId);
 
                     return;
                 }
@@ -431,12 +440,13 @@ public class GetSignalsService
                 setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_NO_INTERNET, objectToCheckSignals, DbHelper.DB_TABLE_SIGNALS);
                 dbHelper.close();
                 disconnect();
-                stopSelf(startId);
                 timer.cancel();
                 try {
                     piRequest.send(FragmentSignals.SIGNALS_STATUS_NO_INTERNET);
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
+                } finally {
+                    stopSelf(startId);
                 }
             }
 

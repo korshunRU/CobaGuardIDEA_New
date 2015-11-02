@@ -66,6 +66,11 @@
             android:name=".GetSignalsService" >
         </service>
 
+        <service
+            android:enabled="true"
+            android:name=".SetGuardStatusService" >
+        </service>
+
     </application>
 
 </manifest>
