@@ -1,6 +1,7 @@
 package ru.korshun.cobaguardidea.app.fragments;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.RootActivity;
@@ -157,7 +159,7 @@ public class FragmentPassportsUpdate
                     }
                 }
                 if (clickCount == 10) {
-                    StartActivity.sharedPreferences
+                    Boot.sharedPreferences
                             .edit()
                             .putLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, Calendar.getInstance().getTimeInMillis())
                             .apply();
@@ -293,23 +295,28 @@ public class FragmentPassportsUpdate
                 case CODE_STATUS_CONNECT:
                     layoutUpdateProccess.setVisibility(View.VISIBLE);
                     tvProgressStatus.setText(getString(R.string.passports_update_connect_title));
+                    pbLoad.setIndeterminate(true);
                     break;
 
                 case CODE_STATUS_DISCONNECT:
                     tvProgressStatus.setText(getString(R.string.passports_update_complite_title));
                     tvLastUpdateDate.setText(getLastUpdateDate());
+                    pbLoad.setIndeterminate(false);
                     break;
 
                 case CODE_STATUS_NO_FILES:
                     tvProgressStatus.setText(getString(R.string.update_no_files));
+                    pbLoad.setIndeterminate(false);
                     break;
 
                 case CODE_STATUS_NO_CONNECT:
                     tvProgressStatus.setText(getString(R.string.no_server_connect));
+                    pbLoad.setIndeterminate(false);
                     break;
 
                 case CODE_STATUS_ERROR:
                     tvProgressStatus.setText(getString(R.string.err_data));
+                    pbLoad.setIndeterminate(false);
                     break;
 
             }
@@ -318,6 +325,7 @@ public class FragmentPassportsUpdate
 
 
         if(requestCode == CODE_FILES_COUNTER) {
+            pbLoad.setIndeterminate(false);
             layoutUpdateProccess.setVisibility(View.VISIBLE);
             tvProgressStatus.setText(getString(R.string.passports_update_proccess_title));
             pbLoad.setProgress(resultCode);
@@ -325,6 +333,7 @@ public class FragmentPassportsUpdate
         }
 
         if(requestCode == CODE_FILES_TOTAL) {
+            pbLoad.setIndeterminate(false);
             tvProgressStatus.setText(getString(R.string.passports_update_proccess_title));
             pbLoad.setMax(resultCode);
             total =                                                 resultCode;
@@ -357,15 +366,15 @@ public class FragmentPassportsUpdate
 
         Intent updateDbServiceIntent =                              new Intent(getActivity().getBaseContext(), UpdatePassportsService.class);
         piRequest =                                                 getActivity().createPendingResult(RootActivity.CODE_REQUEST_PASSPORTS_UPDATE, updateDbServiceIntent, 0);
-        piCounter =                                                 getActivity().createPendingResult(CODE_FILES_COUNTER, updateDbServiceIntent, 0);
-        piTotal =                                                   getActivity().createPendingResult(CODE_FILES_TOTAL, updateDbServiceIntent, 0);
+        piCounter =                                                 getActivity().createPendingResult(FragmentPassportsUpdate.CODE_FILES_COUNTER, updateDbServiceIntent, 0);
+        piTotal =                                                   getActivity().createPendingResult(FragmentPassportsUpdate.CODE_FILES_TOTAL, updateDbServiceIntent, 0);
 //        piError =                               getActivity().createPendingResult(CODE_ERROR, updateDbServiceIntent, 0);
 
         updateDbServiceIntent
-                .putExtra(DOWNLOAD_TYPE, dwnlType)
+                .putExtra(FragmentPassportsUpdate.DOWNLOAD_TYPE, dwnlType)
                 .putExtra(RootActivity.PI_REQUEST, piRequest)
-                .putExtra(PI_FILES_COUNTER, piCounter)
-                .putExtra(PI_FILES_TOTAL, piTotal);
+                .putExtra(FragmentPassportsUpdate.PI_FILES_COUNTER, piCounter)
+                .putExtra(FragmentPassportsUpdate.PI_FILES_TOTAL, piTotal);
 
         getActivity().startService(updateDbServiceIntent);
 
@@ -380,7 +389,7 @@ public class FragmentPassportsUpdate
      * @return              - возвращается дата в формате String
      */
     private String getLastUpdateDate() {
-        return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(StartActivity.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0)));
+        return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0)));
     }
 
 

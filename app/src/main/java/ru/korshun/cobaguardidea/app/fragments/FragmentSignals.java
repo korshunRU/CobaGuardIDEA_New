@@ -2,6 +2,7 @@ package ru.korshun.cobaguardidea.app.fragments;
 
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,6 +15,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.DbHelper;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.GetSignalsService;
@@ -67,7 +70,7 @@ public class FragmentSignals
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        cobaSignalsPath =                                   StartActivity
+        cobaSignalsPath =                                   Boot
                                                                 .sharedPreferences
                                                                 .getString(StartActivity.TEMP_SIGNALS_DIR_KEY, null);
     }
@@ -92,6 +95,8 @@ public class FragmentSignals
             @Override
             public void onClick(View v) {
                 storeObjectQuery(objectNumberEditText.getText().toString());
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
 

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.Settings;
 import ru.korshun.cobaguardidea.app.StartActivity;
@@ -23,7 +24,7 @@ public class FragmentSettings
     public final static String SERVER_ADDRESS_KEY =                     "pref_set_server";
     public final static String SMS_OWNER_KEY =                          "pref_set_sms_sender";
     public final static String AUTO_UPDATE_KEY =                        "pref_set_auto_update";
-    public final static String AUTO_UPDATE_KEY_TYPE =                   "pref_set_auto_update_type";
+    public final static String AUTO_UPDATE_KEY_WIFI =                   "pref_set_auto_update_wifi";
 
 
     public static SharedPreferences.OnSharedPreferenceChangeListener sharedPreferencesListener;
@@ -40,7 +41,7 @@ public class FragmentSettings
         //Установки для просмотра расположения папки с паспортами
         final ListPreference viewPassportsPath =                        (ListPreference) findPreference(PASSPORTS_PATH_KEY);
 
-        viewPassportsPath.setSummary(StartActivity.sharedPreferences.getString(PASSPORTS_PATH_KEY, "-"));
+        viewPassportsPath.setSummary(Boot.sharedPreferences.getString(PASSPORTS_PATH_KEY, "-"));
 
 
 

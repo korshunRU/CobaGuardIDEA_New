@@ -28,7 +28,7 @@
         android:defaultValue="false"/>
 
     <SwitchPreference
-        android:key="pref_set_auto_update_type"
+        android:key="pref_set_auto_update_wifi"
         android:title="@string/pref_set_auto_update_type_title"
         android:summary="@string/pref_set_auto_update_type_summary"
         android:defaultValue="false"

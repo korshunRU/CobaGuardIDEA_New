@@ -75,5 +75,6 @@
     <string name="guard_query_error">ОШИБКА: обнулите файл</string>
 
     <string name="err_no_sms_for_guard_off">Смс с данным номером объекта не обнаружена</string>
+    <string name="notification_title_legend">Нажмите для запуска</string>
 
 </resources>

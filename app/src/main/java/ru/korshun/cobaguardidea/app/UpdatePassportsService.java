@@ -60,7 +60,7 @@ public class UpdatePassportsService
      *  Для отсыла статусов соединения, счетчика переданных файлов, общего числа файлов и ошибок
      */
 //    private PendingIntent piRequest;
-    private PendingIntent piRequest, piCounter, piTotal;
+    private PendingIntent piRequest = null, piCounter = null, piTotal = null;
 
 
     /**
@@ -125,8 +125,8 @@ public class UpdatePassportsService
         piCounter =                                     intent.getParcelableExtra(FragmentPassportsUpdate.PI_FILES_COUNTER);
         piTotal =                                       intent.getParcelableExtra(FragmentPassportsUpdate.PI_FILES_TOTAL);
 
-        serverIp =                                      StartActivity.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null);
-        lastUpdatedDate =                               StartActivity.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0);
+        serverIp =                                      Boot.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null);
+        lastUpdatedDate =                               Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0);
 
         nm =                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder =                                      new NotificationCompat.Builder(getApplicationContext())
@@ -143,22 +143,23 @@ public class UpdatePassportsService
                     .notify(notificationId, mBuilder.build());
 
 
-            try {
-                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
+            if(piRequest != null) {
                 try {
                     piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-                } catch (PendingIntent.CanceledException e1) {
-                    e1.printStackTrace();
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
                     try {
                         piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-                    } catch (PendingIntent.CanceledException e2) {
-                        e2.printStackTrace();
+                    } catch (PendingIntent.CanceledException e1) {
+                        e1.printStackTrace();
+                        try {
+                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+                        } catch (PendingIntent.CanceledException e2) {
+                            e2.printStackTrace();
+                        }
                     }
                 }
             }
-
 
             new Thread(new Runnable() {
                 @Override
@@ -292,18 +293,20 @@ public class UpdatePassportsService
                     .setOngoing(false);
             nm.notify(notificationId, mBuilder.build());
 
-            try {
-                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
-            } catch (PendingIntent.CanceledException e1) {
-                e1.printStackTrace();
+            if(piRequest != null) {
                 try {
                     piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
-                } catch (PendingIntent.CanceledException e2) {
-                    e2.printStackTrace();
+                } catch (PendingIntent.CanceledException e1) {
+                    e1.printStackTrace();
                     try {
                         piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
-                    } catch (PendingIntent.CanceledException e3) {
-                        e3.printStackTrace();
+                    } catch (PendingIntent.CanceledException e2) {
+                        e2.printStackTrace();
+                        try {
+                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+                        } catch (PendingIntent.CanceledException e3) {
+                            e3.printStackTrace();
+                        }
                     }
                 }
             }
@@ -404,18 +407,20 @@ public class UpdatePassportsService
 
             nm.notify(notificationId, mBuilder.build());
 
-            try {
-                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
+            if(piRequest != null) {
                 try {
                     piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
-                } catch (PendingIntent.CanceledException e1) {
-                    e1.printStackTrace();
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
                     try {
                         piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
-                    } catch (PendingIntent.CanceledException e2) {
-                        e2.printStackTrace();
+                    } catch (PendingIntent.CanceledException e1) {
+                        e1.printStackTrace();
+                        try {
+                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+                        } catch (PendingIntent.CanceledException e2) {
+                            e2.printStackTrace();
+                        }
                     }
                 }
             }
@@ -433,23 +438,23 @@ public class UpdatePassportsService
 
 
 
-
-        try {
-            piTotal.send(total);
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
+        if(piTotal != null) {
             try {
                 piTotal.send(total);
-            } catch (PendingIntent.CanceledException e1) {
-                e1.printStackTrace();
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
                 try {
                     piTotal.send(total);
-                } catch (PendingIntent.CanceledException e2) {
-                    e2.printStackTrace();
+                } catch (PendingIntent.CanceledException e1) {
+                    e1.printStackTrace();
+                    try {
+                        piTotal.send(total);
+                    } catch (PendingIntent.CanceledException e2) {
+                        e2.printStackTrace();
+                    }
                 }
             }
         }
-
 
 
 
@@ -518,7 +523,7 @@ public class UpdatePassportsService
             FileOutputStream fos;
             try {
                 fos =                                   new FileOutputStream(
-                        StartActivity
+                                                                    Boot
                                                                         .sharedPreferences
                                                                         .getString(FragmentSettings.PASSPORTS_PATH_KEY, null) + File.separator + fileName
                                                         );
@@ -582,25 +587,26 @@ public class UpdatePassportsService
                         nm.notify(notificationId, mBuilder.build());
 
 
-                        try {
-                            piCounter.send(x);
-                            piTotal.send(total);
-                        } catch (PendingIntent.CanceledException e) {
-                            e.printStackTrace();
+                        if(piTotal != null & piCounter != null) {
                             try {
                                 piCounter.send(x);
                                 piTotal.send(total);
-                            } catch (PendingIntent.CanceledException e1) {
-                                e1.printStackTrace();
+                            } catch (PendingIntent.CanceledException e) {
+                                e.printStackTrace();
                                 try {
                                     piCounter.send(x);
                                     piTotal.send(total);
-                                } catch (PendingIntent.CanceledException e2) {
-                                    e2.printStackTrace();
+                                } catch (PendingIntent.CanceledException e1) {
+                                    e1.printStackTrace();
+                                    try {
+                                        piCounter.send(x);
+                                        piTotal.send(total);
+                                    } catch (PendingIntent.CanceledException e2) {
+                                        e2.printStackTrace();
+                                    }
                                 }
                             }
                         }
-
 
 
                         break;
@@ -659,28 +665,29 @@ public class UpdatePassportsService
 
         nm.notify(notificationId, mBuilder.build());
 
-        try {
-            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
+        if(piRequest != null) {
             try {
                 piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-            } catch (PendingIntent.CanceledException e1) {
-                e1.printStackTrace();
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
                 try {
                     piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-                } catch (PendingIntent.CanceledException e2) {
-                    e2.printStackTrace();
+                } catch (PendingIntent.CanceledException e1) {
+                    e1.printStackTrace();
+                    try {
+                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
+                    } catch (PendingIntent.CanceledException e2) {
+                        e2.printStackTrace();
+                    }
                 }
             }
         }
-
 
         //  Ставим метку о последнем обновлении файлов
         if(isRunning) {
 
             if(objectNumber == 0) {
-                StartActivity
+                Boot
                         .sharedPreferences
                         .edit()
                         .putLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, Calendar.getInstance().getTimeInMillis())
@@ -712,18 +719,20 @@ public class UpdatePassportsService
                 .setOngoing(false);
         nm.notify(notificationId, mBuilder.build());
 
-        try {
-            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
-        } catch (PendingIntent.CanceledException e1) {
-            e1.printStackTrace();
+        if(piRequest != null) {
             try {
                 piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
-            } catch (PendingIntent.CanceledException e2) {
-                e2.printStackTrace();
+            } catch (PendingIntent.CanceledException e1) {
+                e1.printStackTrace();
                 try {
                     piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
-                } catch (PendingIntent.CanceledException e3) {
-                    e3.printStackTrace();
+                } catch (PendingIntent.CanceledException e2) {
+                    e2.printStackTrace();
+                    try {
+                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
+                    } catch (PendingIntent.CanceledException e3) {
+                        e3.printStackTrace();
+                    }
                 }
             }
         }

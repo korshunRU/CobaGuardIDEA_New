@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.ImgCryptoDecoder;
 import ru.korshun.cobaguardidea.app.R;
@@ -69,8 +70,8 @@ public class FragmentPassports
         View v =                                                                inflater.inflate(R.layout.fragment_passports, container, false);
 
 
-        passportsPath =                                                         StartActivity.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null);
-        final String tempPassportsPath =                                        StartActivity.sharedPreferences.getString(StartActivity.TEMP_PASSPORTS_DIR_KEY, null);
+        passportsPath =                                                         Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null);
+        final String tempPassportsPath =                                        Boot.sharedPreferences.getString(StartActivity.TEMP_PASSPORTS_DIR_KEY, null);
 
         FloatingActionButton fabPassportsRefresh =                              (FloatingActionButton) v.findViewById(R.id.fab_passports_refresh);
         FloatingActionButton fabPassportsUpdate =                               (FloatingActionButton) v.findViewById(R.id.fab_passports_update);
@@ -78,10 +79,10 @@ public class FragmentPassports
 
         listPassports =                                                         (ListView) v.findViewById(R.id.list_passports);
 
-        smsNumber =                                                             StartActivity.sharedPreferences.getString(FragmentSettings.SMS_OWNER_KEY, Settings.SMS_NUMBERS_ARRAY[0]);
+        smsNumber =                                                             Boot.sharedPreferences.getString(FragmentSettings.SMS_OWNER_KEY, Settings.SMS_NUMBERS_ARRAY[0]);
         smsLiveTime =                                                           setSmsTimeOut(smsNumber);
 
-        final int totalPassports =                                              StartActivity
+        final int totalPassports =                                              Boot
                                                                                     .sharedPreferences
                                                                                     .getInt(StartActivity.PASSPORTS_COUNT_KEY, 0);
 
@@ -90,8 +91,8 @@ public class FragmentPassports
 
 
         // Выкидываем сообщение с ошибкой, если не удалось создать временную директорию
-        if(!StartActivity.sharedPreferences.getBoolean(StartActivity.CREATE_TEMP_SIGNALS_DIR_KEY, false) ||
-                !StartActivity.sharedPreferences.getBoolean(StartActivity.CREATE_TEMP_PASSPORTS_DIR_KEY, false)) {
+        if(!Boot.sharedPreferences.getBoolean(StartActivity.CREATE_TEMP_SIGNALS_DIR_KEY, false) ||
+                !Boot.sharedPreferences.getBoolean(StartActivity.CREATE_TEMP_PASSPORTS_DIR_KEY, false)) {
             Snackbar
                     .make(v, R.string.create_temp_folder_error, Snackbar.LENGTH_LONG)
                     .show();

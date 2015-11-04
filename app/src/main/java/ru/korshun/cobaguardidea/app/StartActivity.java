@@ -30,7 +30,7 @@ public class StartActivity
 
 
 
-    public static SharedPreferences sharedPreferences;
+//    public static SharedPreferences sharedPreferences;
 
     public final static String PASSPORTS_COUNT_KEY =                    "pref_passports_count";
     public final static String CREATE_TEMP_PASSPORTS_DIR_KEY =          "pref_create_temp_passports_dir";
@@ -45,13 +45,15 @@ public class StartActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        sharedPreferences =                                             PreferenceManager.getDefaultSharedPreferences(this);
+        if(Boot.sharedPreferences == null) {
+            Boot.sharedPreferences =                                    PreferenceManager.getDefaultSharedPreferences(this);
+        }
 
 
 
         // Если дата последнего обновления не задана - устанавливаем ее в текущее время
-        if(sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0) == 0) {
-            sharedPreferences
+        if(Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0) == 0) {
+            Boot.sharedPreferences
                     .edit()
                     .putLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, Calendar.getInstance().getTimeInMillis())
                     .apply();
@@ -60,8 +62,8 @@ public class StartActivity
 
 
         // Если сервер обновлений не задан - берем из соответствующего массива первое значение и записываем
-        if(StartActivity.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null) == null) {
-            sharedPreferences
+        if(Boot.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null) == null) {
+            Boot.sharedPreferences
                     .edit()
                     .putString(FragmentSettings.SERVER_ADDRESS_KEY, Settings.SERVERS_IP_ARRAY[0])
                     .apply();
@@ -70,8 +72,8 @@ public class StartActivity
 
 
         // Если номер отправителя смс не задан - берем из соответствующего массива первое значение и записываем
-        if(StartActivity.sharedPreferences.getString(FragmentSettings.SMS_OWNER_KEY, null) == null) {
-            sharedPreferences
+        if(Boot.sharedPreferences.getString(FragmentSettings.SMS_OWNER_KEY, null) == null) {
+            Boot.sharedPreferences
                     .edit()
                     .putString(FragmentSettings.SMS_OWNER_KEY, Settings.SMS_NUMBERS_ARRAY[0])
                     .apply();
@@ -243,8 +245,8 @@ public class StartActivity
          */
         private void checkCobaDir() {
 
-            passportsDir =                                      sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) != null ?
-                                                                    sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) :
+            passportsDir =                                      Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) != null ?
+                                                                    Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) :
                                                                     null;
 
             cobaTempPassportsPath =                             getExternalCacheDir() != null ?
@@ -286,7 +288,7 @@ public class StartActivity
 
                     if (new File(STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH).isDirectory()) {
 //                        Functions.setPrefOption(Settings.PASSPORTS_DIR, STORAGE_DIR, cnt);
-                        sharedPreferences
+                        Boot.sharedPreferences
                                 .edit()
                                 .putString(FragmentSettings.PASSPORTS_PATH_KEY, STORAGE_DIR + File.separator + Settings.COBA_PASSPORTS_PATH)
                                 .apply();
@@ -319,27 +321,27 @@ public class StartActivity
 
             Intent rootActivity =                               new Intent(this.cnt, RootActivity.class);
 
-            sharedPreferences
+            Boot.sharedPreferences
                     .edit()
                     .putInt(PASSPORTS_COUNT_KEY,                totalPassport)
                     .apply();
 
-            sharedPreferences
+            Boot.sharedPreferences
                     .edit()
                     .putBoolean(CREATE_TEMP_PASSPORTS_DIR_KEY,  isCreateTempPassportsDir)
                     .apply();
 
-            sharedPreferences
+            Boot.sharedPreferences
                     .edit()
                     .putBoolean(CREATE_TEMP_SIGNALS_DIR_KEY,    isCreateSignalsDir)
                     .apply();
 
-            sharedPreferences
+            Boot.sharedPreferences
                     .edit()
                     .putString(TEMP_PASSPORTS_DIR_KEY,          cobaTempPassportsPath)
                     .apply();
 
-            sharedPreferences
+            Boot.sharedPreferences
                     .edit()
                     .putString(TEMP_SIGNALS_DIR_KEY,            cobaSignalsPath)
                     .apply();
