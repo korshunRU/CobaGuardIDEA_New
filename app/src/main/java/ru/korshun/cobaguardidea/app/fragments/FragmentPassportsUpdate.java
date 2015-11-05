@@ -1,7 +1,5 @@
 package ru.korshun.cobaguardidea.app.fragments;
 
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,8 +27,6 @@ import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.RootActivity;
-import ru.korshun.cobaguardidea.app.Settings;
-import ru.korshun.cobaguardidea.app.StartActivity;
 import ru.korshun.cobaguardidea.app.UpdatePassportsService;
 
 public class FragmentPassportsUpdate

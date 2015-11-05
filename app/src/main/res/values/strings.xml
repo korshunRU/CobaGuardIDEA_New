@@ -76,5 +76,6 @@
 
     <string name="err_no_sms_for_guard_off">Смс с данным номером объекта не обнаружена</string>
     <string name="notification_title_legend">Нажмите для запуска</string>
+    <string name="passports_no_update_error">ТРЕБУЕТСЯ ОБНОВИТЬ БД ПАСПОРТОВ</string>
 
 </resources>

@@ -1,12 +1,10 @@
 package ru.korshun.cobaguardidea.app;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.widget.Toast;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentPassportsUpdate;
 import ru.korshun.cobaguardidea.app.fragments.FragmentSettings;

@@ -25,7 +25,7 @@ public final class Settings {
     public static final int CONNECTION_TIMEOUT_SIGNALS =        10000;
     public static final int CONNECTION_TIMEOUT_GUARD =          10000;
 
-    public static final int NO_UPDATE_DAYS_ALERT =              7; // в днях!!!
+    public static final int NO_UPDATE_DAYS_ALERT =              3; // в днях!!!
 
     public static final String COBA_PASSPORTS_PATH =            "Android" + File.separator +
                                                                 "data" + File.separator +

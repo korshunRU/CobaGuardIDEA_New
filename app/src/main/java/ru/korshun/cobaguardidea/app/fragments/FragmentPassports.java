@@ -86,6 +86,10 @@ public class FragmentPassports
                                                                                     .sharedPreferences
                                                                                     .getInt(StartActivity.PASSPORTS_COUNT_KEY, 0);
 
+        long daysAfterUpdate =                                                  (Calendar.getInstance().getTimeInMillis()
+                                                                                -
+                                                                                Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0)) / (24 * 60 * 60 * 1000);
+
 
         decoder =                                                               new ImgCryptoDecoder(passportsPath, tempPassportsPath);
 
@@ -103,6 +107,14 @@ public class FragmentPassports
         if(totalPassports == 0) {
             Snackbar
                     .make(v, R.string.passports_count_error, Snackbar.LENGTH_INDEFINITE)
+                    .show();
+        }
+
+
+        // Если давно не было обновления
+        if(daysAfterUpdate > Settings.NO_UPDATE_DAYS_ALERT) {
+            Snackbar
+                    .make(v, R.string.passports_no_update_error, Snackbar.LENGTH_LONG)
                     .show();
         }
 
