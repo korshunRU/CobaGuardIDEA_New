@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:text="@string/nav_header_logo_text"
         android:paddingTop="3dp"
-        android:textColor="@color/icons"
+        android:textColor="@color/primary_text"
         android:textStyle="bold"
         android:textSize="13sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />

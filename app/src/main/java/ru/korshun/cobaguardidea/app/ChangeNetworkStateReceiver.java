@@ -27,7 +27,7 @@ public class ChangeNetworkStateReceiver
                 boolean autoUpdate =                                Boot.sharedPreferences.getBoolean(FragmentSettings.AUTO_UPDATE_KEY, false);
                 boolean autoUpdateWiFi =                            Boot.sharedPreferences.getBoolean(FragmentSettings.AUTO_UPDATE_KEY_WIFI, false);
 
-                if(autoUpdate) {
+                if(autoUpdate & !Functions.isServiceRunning(UpdatePassportsService.class, context)) {
 
                     if((autoUpdateWiFi & ni.getType() == ConnectivityManager.TYPE_WIFI) | !autoUpdateWiFi) {
                         Intent updateDbServiceIntent =              new Intent(context, UpdatePassportsService.class);

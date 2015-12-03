@@ -51,9 +51,26 @@ public class StartActivity
 
 
 
+        // временно отключаем автообновление
+//        if(Boot.sharedPreferences.getBoolean(FragmentSettings.AUTO_UPDATE_KEY, false)) {
+//            Boot
+//                    .sharedPreferences
+//                    .edit()
+//                    .putBoolean(FragmentSettings.AUTO_UPDATE_KEY, false)
+//                    .apply();
+//            Boot
+//                    .sharedPreferences
+//                    .edit()
+//                    .putBoolean(FragmentSettings.AUTO_UPDATE_KEY_WIFI, false)
+//                    .apply();
+//        }
+
+
+
         // Если дата последнего обновления не задана - устанавливаем ее в текущее время
         if(Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0) == 0) {
-            Boot.sharedPreferences
+            Boot
+                    .sharedPreferences
                     .edit()
                     .putLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, Calendar.getInstance().getTimeInMillis())
                     .apply();
@@ -63,7 +80,8 @@ public class StartActivity
 
         // Если сервер обновлений не задан - берем из соответствующего массива первое значение и записываем
         if(Boot.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null) == null) {
-            Boot.sharedPreferences
+            Boot
+                    .sharedPreferences
                     .edit()
                     .putString(FragmentSettings.SERVER_ADDRESS_KEY, Settings.SERVERS_IP_ARRAY[0])
                     .apply();
@@ -73,7 +91,8 @@ public class StartActivity
 
         // Если номер отправителя смс не задан - берем из соответствующего массива первое значение и записываем
         if(Boot.sharedPreferences.getString(FragmentSettings.SMS_OWNER_KEY, null) == null) {
-            Boot.sharedPreferences
+            Boot
+                    .sharedPreferences
                     .edit()
                     .putString(FragmentSettings.SMS_OWNER_KEY, Settings.SMS_NUMBERS_ARRAY[0])
                     .apply();

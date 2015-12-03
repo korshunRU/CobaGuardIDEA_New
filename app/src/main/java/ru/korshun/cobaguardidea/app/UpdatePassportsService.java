@@ -1,7 +1,6 @@
 package ru.korshun.cobaguardidea.app;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +14,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,10 +25,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Calendar;
-import java.util.Formatter;
-import java.util.concurrent.TimeUnit;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentPassportsUpdate;
 import ru.korshun.cobaguardidea.app.fragments.FragmentSettings;
@@ -43,9 +40,16 @@ public class UpdatePassportsService
 
 
     /**
-     *  Сокет для скачивания всех новых файлов
+     *  Сокет для создания запроса и чтения ответов сервера
      */
     private Socket allFilesSocket;
+
+
+    /**
+     *  Сокет для непосредственного скачивания файлов
+     */
+    private Socket downloadFilesSocket;
+
 
 
     /**
@@ -60,7 +64,7 @@ public class UpdatePassportsService
      *  Для отсыла статусов соединения, счетчика переданных файлов, общего числа файлов и ошибок
      */
 //    private PendingIntent piRequest;
-    private PendingIntent piRequest = null, piCounter = null, piTotal = null;
+//    private PendingIntent piRequest = null, piCounter = null, piTotal = null;
 
 
     /**
@@ -103,16 +107,13 @@ public class UpdatePassportsService
 
 
 
+    private int sizeSend, sizeFile, total;
+
+
+
     private NotificationCompat.Builder mBuilder;
     private NotificationManager nm;
 
-
-
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 
 
 
@@ -121,9 +122,9 @@ public class UpdatePassportsService
     public int onStartCommand(Intent intent, int flags, final int startId) {
 
         objectToDownload =                              intent.getIntExtra(FragmentPassportsUpdate.DOWNLOAD_TYPE, 0);
-        piRequest =                                     intent.getParcelableExtra(RootActivity.PI_REQUEST);
-        piCounter =                                     intent.getParcelableExtra(FragmentPassportsUpdate.PI_FILES_COUNTER);
-        piTotal =                                       intent.getParcelableExtra(FragmentPassportsUpdate.PI_FILES_TOTAL);
+//        piRequest =                                     intent.getParcelableExtra(RootActivity.PI_REQUEST);
+//        piCounter =                                     intent.getParcelableExtra(FragmentPassportsUpdate.PI_FILES_COUNTER);
+//        piTotal =                                       intent.getParcelableExtra(FragmentPassportsUpdate.PI_FILES_TOTAL);
 
         serverIp =                                      Boot.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null);
         lastUpdatedDate =                               Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0);
@@ -143,58 +144,29 @@ public class UpdatePassportsService
                     .notify(notificationId, mBuilder.build());
 
 
-            if(piRequest != null) {
-                try {
-                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                    try {
-                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-                    } catch (PendingIntent.CanceledException e1) {
-                        e1.printStackTrace();
-                        try {
-                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-                        } catch (PendingIntent.CanceledException e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                }
-            }
+//            if(piRequest != null) {
+//                try {
+//                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+//                } catch (PendingIntent.CanceledException e) {
+//                    e.printStackTrace();
+//                    try {
+//                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+//                    } catch (PendingIntent.CanceledException e1) {
+//                        e1.printStackTrace();
+//                        try {
+//                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+//                        } catch (PendingIntent.CanceledException e2) {
+//                            e2.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
 
                     getFiles(startId, objectToDownload);
-
-
-
-
-
-
-
-//
-//                    try {
-//                        TimeUnit.SECONDS.sleep(3);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        stopSelf(startId);
-//                    }
-//
-//                    int count = 30;
-//
-//
-//                    for(int x = 0; x < count; x++) {
-//
-//                        try {
-//                            TimeUnit.SECONDS.sleep(1);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                            stopSelf(startId);
-//                        }
-//
-//
-//                    }
 
                 }
             }).start();
@@ -205,7 +177,7 @@ public class UpdatePassportsService
             stopSelf(startId);
         }
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 
@@ -278,7 +250,8 @@ public class UpdatePassportsService
     private void getFiles(int startId, int objectNumber) {
 
         allFilesSocket =                                new Socket();
-        int total;
+        Intent intent =                                 new Intent(FragmentPassportsUpdate.BROADCAST_ACTION);
+//        int total;
 
 
 
@@ -293,62 +266,119 @@ public class UpdatePassportsService
                     .setOngoing(false);
             nm.notify(notificationId, mBuilder.build());
 
-            if(piRequest != null) {
-                try {
-                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
-                } catch (PendingIntent.CanceledException e1) {
-                    e1.printStackTrace();
-                    try {
-                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
-                    } catch (PendingIntent.CanceledException e2) {
-                        e2.printStackTrace();
-                        try {
-                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
-                        } catch (PendingIntent.CanceledException e3) {
-                            e3.printStackTrace();
-                        }
-                    }
-                }
-            }
+            intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+            sendBroadcast(intent);
+            isRunning = false;
+
+//            if(piRequest != null) {
+//                try {
+//                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+//                } catch (PendingIntent.CanceledException e1) {
+//                    e1.printStackTrace();
+//                    try {
+//                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+//                    } catch (PendingIntent.CanceledException e2) {
+//                        e2.printStackTrace();
+//                        try {
+//                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+//                        } catch (PendingIntent.CanceledException e3) {
+//                            e3.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
+
             stopSelf(startId);
             return;
         }
 
 
+        sizeSend =                                      0;
+        sizeFile =                                      0;
+        total =                                         0;
+
+        intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+//        intent.putExtra(FragmentPassportsUpdate.PI_SIZE_SEND, sizeSend);
+//        intent.putExtra(FragmentPassportsUpdate.PI_SIZE_FILE, sizeFile);
+        intent.putExtra(FragmentPassportsUpdate.PI_COUNT, 0);
+        intent.putExtra(FragmentPassportsUpdate.PI_TOTAL, total);
+        sendBroadcast(intent);
+
+        in =                                            createBufferReader(allFilesSocket);
+        out =                                           createPrintWriter(allFilesSocket);
+
+
+        if(in == null || out == null) {
+
+            try {
+                allFilesSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if(in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(out != null) {
+                out.close();
+            }
+
+            intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_ERROR);
+            sendBroadcast(intent);
+
+            mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+                    .setProgress(0, 0, false)
+                    .setOngoing(false);
+            nm.notify(notificationId, mBuilder.build());
+
+            isRunning = false;
+            stopSelf(startId);
+            return;
+
+        }
+
+
+        intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_FIND_NEW_FILES);
+        sendBroadcast(intent);
 
 
         // СОздание BufferedReader и обработка ошибки создания
-        try {
-            in =                                        new BufferedReader(new InputStreamReader(allFilesSocket.getInputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
-            sendErrorMsg();
-            try {
-                allFilesSocket.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            stopSelf(startId);
-            return;
-        }
+//        try {
+//            in =                                        new BufferedReader(new InputStreamReader(allFilesSocket.getInputStream()));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            sendErrorMsg();
+//            try {
+//                allFilesSocket.close();
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
+//            stopSelf(startId);
+//            return;
+//        }
 
 
 
 
         // СОздание PrintWriter и обработка ошибки создания
-        try {
-            out =                                       new PrintWriter(new BufferedWriter(new OutputStreamWriter(allFilesSocket.getOutputStream())), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            sendErrorMsg();
-            try {
-                allFilesSocket.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            stopSelf(startId);
-            return;
-        }
+//        try {
+//            out =                                       new PrintWriter(new BufferedWriter(new OutputStreamWriter(allFilesSocket.getOutputStream())), true);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            sendErrorMsg();
+//            try {
+//                allFilesSocket.close();
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
+//            stopSelf(startId);
+//            return;
+//        }
 
 
 
@@ -373,19 +403,26 @@ public class UpdatePassportsService
 
 
 
-
+        int bufferSize;
 
         // Чтение ответа сервера на запрос количества файлов и обработка ошибки
         try {
-            total =                                     Integer.parseInt(this.in.readLine());
+            total =                                     Integer.parseInt(in.readLine());
+            bufferSize =                                Integer.parseInt(in.readLine());
         } catch (IOException e) {
             e.printStackTrace();
-            sendErrorMsg();
-            try {
-                allFilesSocket.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            disconnectFromServer();
+
+            intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_ERROR);
+            sendBroadcast(intent);
+
+            mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+                    .setProgress(0, 0, false)
+                    .setOngoing(false);
+            nm.notify(notificationId, mBuilder.build());
+
+            isRunning = false;
+
             stopSelf(startId);
             return;
 
@@ -401,35 +438,33 @@ public class UpdatePassportsService
 
             disconnectFromServer();
 
-            mBuilder.setContentTitle(getResources().getString(R.string.update_no_files))
+            intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+            sendBroadcast(intent);
+
+            mBuilder.setContentTitle(getResources().getString(R.string.passports_update_no_files))
                     .setProgress(0, 0, false)
                     .setOngoing(false);
 
             nm.notify(notificationId, mBuilder.build());
 
-            if(piRequest != null) {
-                try {
-                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                    try {
-                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
-                    } catch (PendingIntent.CanceledException e1) {
-                        e1.printStackTrace();
-                        try {
-                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
-                        } catch (PendingIntent.CanceledException e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                }
-            }
+//            if(piRequest != null) {
+//                try {
+//                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+//                } catch (PendingIntent.CanceledException e) {
+//                    e.printStackTrace();
+//                    try {
+//                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+//                    } catch (PendingIntent.CanceledException e1) {
+//                        e1.printStackTrace();
+//                        try {
+//                            piRequest.send(FragmentPassportsUpdate.CODE_STATUS_NO_FILES);
+//                        } catch (PendingIntent.CanceledException e2) {
+//                            e2.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
 
-            try {
-                allFilesSocket.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
 
             stopSelf(startId);
             return;
@@ -438,33 +473,66 @@ public class UpdatePassportsService
 
 
 
-        if(piTotal != null) {
-            try {
-                piTotal.send(total);
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
-                try {
-                    piTotal.send(total);
-                } catch (PendingIntent.CanceledException e1) {
-                    e1.printStackTrace();
-                    try {
-                        piTotal.send(total);
-                    } catch (PendingIntent.CanceledException e2) {
-                        e2.printStackTrace();
-                    }
-                }
-            }
-        }
+//        if(piTotal != null) {
+//            try {
+//                piTotal.send(total);
+//            } catch (PendingIntent.CanceledException e) {
+//                e.printStackTrace();
+//                try {
+//                    piTotal.send(total);
+//                } catch (PendingIntent.CanceledException e1) {
+//                    e1.printStackTrace();
+//                    try {
+//                        piTotal.send(total);
+//                    } catch (PendingIntent.CanceledException e2) {
+//                        e2.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
 
 
 
 
+
+        intent.putExtra(FragmentPassportsUpdate.PI_TOTAL, total);
+        intent.putExtra(FragmentPassportsUpdate.PI_COUNT, 0);
+        sendBroadcast(intent);
 
         out.println("download");
         out.flush();
 
+
+        intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_UPDATING);
+        sendBroadcast(intent);
+
+
+
+        downloadFilesSocket =                           new Socket();
         isRunning =                                     true;
 
+
+            // СОединение с сервером для скачивания и обработка ошибки соединения
+            try {
+                downloadFilesSocket.connect(new InetSocketAddress(InetAddress.getByName(serverIp), Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_PASSPORTS);
+            } catch (IOException e) {
+                e.printStackTrace();
+
+                disconnectFromServer();
+
+                intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_NO_CONNECT);
+                sendBroadcast(intent);
+
+                mBuilder.setContentTitle(getResources().getString(R.string.no_server_connect))
+                        .setProgress(0, 0, false)
+                        .setOngoing(false);
+                nm.notify(notificationId, mBuilder.build());
+
+                isRunning = false;
+
+                stopSelf(startId);
+                return;
+            }
 
 
         // Начинаем передачу файлов
@@ -474,52 +542,58 @@ public class UpdatePassportsService
                 return;
             }
 
-            String fileName, fileSize;
+            String fileName;
 
 
             // ПОлучаем ответ сервера об имени файла и его размере и обработка ошибки
             try {
                 fileName =                              this.in.readLine();
-                fileSize =                              this.in.readLine();
+                sizeFile =                              Integer.parseInt(in.readLine());
             } catch (IOException e) {
                 e.printStackTrace();
-                sendErrorMsg();
+                disconnectFromServer();
 
-                try {
-                    allFilesSocket.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_ERROR);
+                sendBroadcast(intent);
+
+                mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+                        .setProgress(0, 0, false)
+                        .setOngoing(false);
+                nm.notify(notificationId, mBuilder.build());
+
+                isRunning = false;
 
                 stopSelf(startId);
                 return;
             }
 
 
-            Socket serverFile =                         new Socket();
-
-            // СОединение с сервером для скачивания и обработка ошибки соединения
-            try {
-                serverFile.connect(new InetSocketAddress(InetAddress.getByName(serverIp), Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_PASSPORTS);
-            } catch (IOException e) {
-                e.printStackTrace();
-                sendErrorMsg();
-
-                try {
-                    allFilesSocket.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-
-                stopSelf(startId);
-                return;
-            }
-
-
-            byte[] buffer =                             new byte[8 * 1024];
+//            Socket serverFile =                         new Socket();
+//
+//            // СОединение с сервером для скачивания и обработка ошибки соединения
+//            try {
+//                serverFile.connect(new InetSocketAddress(InetAddress.getByName(serverIp), Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_PASSPORTS);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                sendErrorMsg();
+//
+//                try {
+//                    allFilesSocket.close();
+//                } catch (IOException e1) {
+//                    e1.printStackTrace();
+//                }
+//
+//                stopSelf(startId);
+//                return;
+//            }
 
 
-            // СОздание файла, в который будет записанные принятые данные с сервера т обработка оишбки
+//            byte[] buffer =                             new byte[8 * 1024];
+
+
+
+
+            //СОздание файла, в который будет записанные принятые данные с сервера т обработка оишбки
             FileOutputStream fos;
             try {
                 fos =                                   new FileOutputStream(
@@ -529,13 +603,17 @@ public class UpdatePassportsService
                                                         );
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                sendErrorMsg();
+                disconnectFromServer();
 
-                try {
-                    allFilesSocket.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_ERROR);
+                sendBroadcast(intent);
+
+                mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+                        .setProgress(0, 0, false)
+                        .setOngoing(false);
+                nm.notify(notificationId, mBuilder.build());
+
+                isRunning = false;
 
                 stopSelf(startId);
                 return;
@@ -545,24 +623,30 @@ public class UpdatePassportsService
             // СОздание буфера для принятия информации с сервера т обработка оишбки
             BufferedOutputStream bos =                  new BufferedOutputStream(fos);
             DataInputStream dis;
+            DataOutputStream dosTestConnect;
             try {
-                dis =                                   new DataInputStream(serverFile.getInputStream());
+                dis =                                   new DataInputStream(downloadFilesSocket.getInputStream());
+                dosTestConnect =                        new DataOutputStream(downloadFilesSocket.getOutputStream());
             } catch (IOException e) {
                 e.printStackTrace();
-                sendErrorMsg();
+                disconnectFromServer();
 
-                try {
-                    allFilesSocket.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_ERROR);
+                sendBroadcast(intent);
+
+                mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+                        .setProgress(0, 0, false)
+                        .setOngoing(false);
+                nm.notify(notificationId, mBuilder.build());
+
+                isRunning = false;
 
                 stopSelf(startId);
                 return;
             }
 
 
-            int count, totalLength =                    0;
+//            int count, totalLength =                    0;
 
 
 
@@ -571,13 +655,33 @@ public class UpdatePassportsService
             // Прием файла и обработка ошибки
             try {
 
-                while ((count = dis.read(buffer, 0, buffer.length)) != -1) {
+//                intent.putExtra(FragmentPassportsUpdate.PI_SIZE_SEND, sizeSend);
+//                intent.putExtra(FragmentPassportsUpdate.PI_SIZE_FILE, sizeFile);
+//                sendBroadcast(intent);
 
-                    totalLength +=                      count;
-                    bos.write(buffer, 0, count);
+
+                byte[] buffer =                         new byte[bufferSize * 1024];
+                int sizeRead;
+
+                while ((sizeRead = dis.read(buffer, 0, buffer.length)) != -1) {
+
+
+                    sizeSend +=             sizeRead;
+                    bos.write(buffer, 0, sizeRead);
                     bos.flush();
 
-                    if (totalLength == Long.parseLong(fileSize)) {
+//                    intent.putExtra(FragmentPassportsUpdate.PI_SIZE_SEND, sizeSend);
+//                    sendBroadcast(intent);
+
+                    if (sizeSend == sizeFile) {
+
+                        dosTestConnect.write(1);
+                        dosTestConnect.flush();
+
+//                        int count =         this.count + 1;
+
+                        intent.putExtra(FragmentPassportsUpdate.PI_COUNT, x);
+                        sendBroadcast(intent);
 
                         mBuilder.setContentTitle(getResources().getString(R.string.passports_update_proccess_title))
                                 .setContentText(x + "/" + total)
@@ -587,67 +691,115 @@ public class UpdatePassportsService
                         nm.notify(notificationId, mBuilder.build());
 
 
-                        if(piTotal != null & piCounter != null) {
-                            try {
-                                piCounter.send(x);
-                                piTotal.send(total);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                                try {
-                                    piCounter.send(x);
-                                    piTotal.send(total);
-                                } catch (PendingIntent.CanceledException e1) {
-                                    e1.printStackTrace();
-                                    try {
-                                        piCounter.send(x);
-                                        piTotal.send(total);
-                                    } catch (PendingIntent.CanceledException e2) {
-                                        e2.printStackTrace();
-                                    }
-                                }
-                            }
-                        }
-
+                        sizeFile =          0;
+                        sizeSend =          0;
 
                         break;
                     }
+
+                    if(sizeSend > sizeFile) {
+                        dosTestConnect.write(0);
+                        dosTestConnect.flush();
+                        break;
+                    }
+
+
+//                    totalLength +=                      count;
+//                    bos.write(buffer, 0, count);
+//                    bos.flush();
+//
+//                    if (totalLength == Long.parseLong(fileSize)) {
+//
+//                        mBuilder.setContentTitle(getResources().getString(R.string.passports_update_proccess_title))
+//                                .setContentText(x + "/" + total)
+//                                .setProgress(total, x, false)
+//                                .setNumber(x);
+//
+//                        nm.notify(notificationId, mBuilder.build());
+
+
+//                        if(piTotal != null & piCounter != null) {
+//                            try {
+//                                piCounter.send(x);
+//                                piTotal.send(total);
+//                            } catch (PendingIntent.CanceledException e) {
+//                                e.printStackTrace();
+//                                try {
+//                                    piCounter.send(x);
+//                                    piTotal.send(total);
+//                                } catch (PendingIntent.CanceledException e1) {
+//                                    e1.printStackTrace();
+//                                    try {
+//                                        piCounter.send(x);
+//                                        piTotal.send(total);
+//                                    } catch (PendingIntent.CanceledException e2) {
+//                                        e2.printStackTrace();
+//                                    }
+//                                }
+//                            }
+//                        }
+
+
+//                        break;
+//                    }
 
 
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
-                sendErrorMsg();
 
                 try {
-                    allFilesSocket.close();
+                    dosTestConnect.write(0);
+                    dosTestConnect.flush();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
 
+                try {
+                    downloadFilesSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                disconnectFromServer();
+
+                intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_ERROR);
+                sendBroadcast(intent);
+
+                mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+                        .setProgress(0, 0, false)
+                        .setOngoing(false);
+                nm.notify(notificationId, mBuilder.build());
+
+                isRunning = false;
+
                 stopSelf(startId);
                 return;
-            } finally {
-
-                // Закрытие всех буферов
-                try {
-                    fos.close();
-                    bos.close();
-                    dis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-                // Отключение от порта передачи файлов
-                try {
-                    serverFile.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
             }
+
+
+//            finally {
+//
+//                // Закрытие всех буферов
+//                try {
+//                    fos.close();
+//                    bos.close();
+//                    dis.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//                // Отключение от порта передачи файлов
+//                try {
+//                    serverFile.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//            }
 
 
 
@@ -659,31 +811,35 @@ public class UpdatePassportsService
         // Отключение от сервера
         disconnectFromServer();
 
+        intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
+        sendBroadcast(intent);
+
         mBuilder.setContentTitle(getResources().getString(R.string.passports_update_complite_title))
                 .setProgress(0, 0, false)
                 .setOngoing(false);
 
         nm.notify(notificationId, mBuilder.build());
 
-        if(piRequest != null) {
-            try {
-                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
-                try {
-                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-                } catch (PendingIntent.CanceledException e1) {
-                    e1.printStackTrace();
-                    try {
-                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
-                    } catch (PendingIntent.CanceledException e2) {
-                        e2.printStackTrace();
-                    }
-                }
-            }
-        }
+//        if(piRequest != null) {
+//            try {
+//                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
+//            } catch (PendingIntent.CanceledException e) {
+//                e.printStackTrace();
+//                try {
+//                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
+//                } catch (PendingIntent.CanceledException e1) {
+//                    e1.printStackTrace();
+//                    try {
+//                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_DISCONNECT);
+//                    } catch (PendingIntent.CanceledException e2) {
+//                        e2.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
 
         //  Ставим метку о последнем обновлении файлов
+
         if(isRunning) {
 
             if(objectNumber == 0) {
@@ -706,6 +862,28 @@ public class UpdatePassportsService
 
 
 
+    private BufferedReader createBufferReader(Socket connectSocket) {
+        try {
+            return new BufferedReader(new InputStreamReader(connectSocket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
+
+    private PrintWriter createPrintWriter(Socket connectSocket) {
+        try {
+            return new PrintWriter(new BufferedWriter(new OutputStreamWriter(connectSocket.getOutputStream())), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
 
 
 
@@ -719,23 +897,24 @@ public class UpdatePassportsService
                 .setOngoing(false);
         nm.notify(notificationId, mBuilder.build());
 
-        if(piRequest != null) {
-            try {
-                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
-            } catch (PendingIntent.CanceledException e1) {
-                e1.printStackTrace();
-                try {
-                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
-                } catch (PendingIntent.CanceledException e2) {
-                    e2.printStackTrace();
-                    try {
-                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
-                    } catch (PendingIntent.CanceledException e3) {
-                        e3.printStackTrace();
-                    }
-                }
-            }
-        }
+//        if(piRequest != null) {
+//            try {
+//                piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
+//            } catch (PendingIntent.CanceledException e1) {
+//                e1.printStackTrace();
+//                try {
+//                    piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
+//                } catch (PendingIntent.CanceledException e2) {
+//                    e2.printStackTrace();
+//                    try {
+//                        piRequest.send(FragmentPassportsUpdate.CODE_STATUS_ERROR);
+//                    } catch (PendingIntent.CanceledException e3) {
+//                        e3.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+
     }
 
 
