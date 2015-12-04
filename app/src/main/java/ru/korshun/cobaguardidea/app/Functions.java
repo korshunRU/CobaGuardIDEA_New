@@ -17,57 +17,6 @@ public final class Functions {
 
 
 
-
-    /**
-     *  Функция УСТАНАВЛИВАЕТ из файла preferences опцию с определенным тегом
-     * @param tag               - ссылка на метку опции
-     * @param cnt               - ссылка на контекст
-     */
-//    public static void setPrefOption(String tag, String str, Context cnt) {
-//        SharedPreferences.Editor ed = cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).edit();
-//        ed.putString(tag, String.valueOf(str));
-//        ed.apply();
-//    }
-
-
-
-
-
-
-
-    /**
-     *  Функция ПОЛУЧАЕТ из файла preferences опцию с определенным тегом
-     * @param tag               - ссылка на метку опции
-     * @param cnt               - ссылка на контекст
-     * @return                  - в случае успеха возвращается значение
-     */
-//    public static String getPrefOption(String tag, Context cnt) {
-//        return cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).contains(tag) ?
-//                cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).getString(tag, "") :
-//                null;
-//    }
-
-
-
-
-
-
-
-    /**
-     *  Функция УДАЛЯЕТ из файла preferences опцию с определенным тегом
-     * @param tag               - ссылка на метку опции
-     * @param cnt               - ссылка на контекст
-     * @return                  - в случае успеха возвращается TRUE
-     */
-//    public static boolean deletePrefOption(String tag, Context cnt) {
-//        return cnt.getSharedPreferences(Settings.PREFERENCES_FILE_NAME, 0x0000).edit().remove(tag).commit();
-//    }
-
-
-
-
-
-
     /**
      *  Функция проверяет, является ли строка целым числом
      * @param str               - строка, которую будем проверять

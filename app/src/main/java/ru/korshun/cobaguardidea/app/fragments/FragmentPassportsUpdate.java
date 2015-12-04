@@ -218,15 +218,11 @@ public class FragmentPassportsUpdate
                         pbLoad.setMax(0);
                         pbLoad.setIndeterminate(true);
                         tvProgressStatus.setText(getString(R.string.passports_update_connect_title));
-//                        loadPb.setMax(0);
-//                        loadPb.setProgress(0);
                         break;
 
                     case CODE_STATUS_FIND_NEW_FILES:
                         pbLoad.setIndeterminate(true);
                         tvProgressStatus.setText(getString(R.string.passports_update_find_title));
-//                        loadPb.setMax(total);
-//                        loadPb.setProgress(0);
                         break;
 
                     case CODE_STATUS_UPDATING:
@@ -239,16 +235,6 @@ public class FragmentPassportsUpdate
 
                         tvProgress.setText(count + "/" + total);
                         tvProgressProc.setText(((count / total) * 100) + "%");
-
-//                        countTv.setText(count + " / " + total);
-
-//                        if(total > 0) {
-//                            loadPb.setMax(total);
-//                        }
-//
-//                        if(count > 0) {
-//                            loadPb.setProgress(count);
-//                        }
 
                         break;
 
@@ -381,84 +367,6 @@ public class FragmentPassportsUpdate
 
 
     /**
-     *  Ловим данные, которые прилетели из Activity
-     *  Смотрим на requestCode - это порядковый номер фрагмента:
-     *   0 - фрагмент списка паспортов
-     *   1 - фрагмент сигналов
-     *   2 - фрагмент снятия\постановки объекта и т.д. по порядку в меню
-     *
-     *   Тут ловим requestCode == 0
-     */
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if(requestCode == RootActivity.CODE_REQUEST_PASSPORTS_UPDATE) {
-//
-//            switch (resultCode) {
-//
-//                case CODE_STATUS_CONNECT:
-//                    layoutUpdateProccess.setVisibility(View.VISIBLE);
-//                    tvProgressStatus.setText(getString(R.string.passports_update_connect_title));
-//                    pbLoad.setIndeterminate(true);
-//                    break;
-//
-//                case CODE_STATUS_DISCONNECT:
-//                    tvProgressStatus.setText(getString(R.string.passports_update_complite_title));
-//                    tvLastUpdateDate.setText(getLastUpdateDate());
-//                    pbLoad.setIndeterminate(false);
-//                    break;
-//
-//                case CODE_STATUS_NO_FILES:
-//                    tvProgressStatus.setText(getString(R.string.update_no_files));
-//                    pbLoad.setIndeterminate(false);
-//                    break;
-//
-//                case CODE_STATUS_NO_CONNECT:
-//                    tvProgressStatus.setText(getString(R.string.no_server_connect));
-//                    pbLoad.setIndeterminate(false);
-//                    break;
-//
-//                case CODE_STATUS_ERROR:
-//                    tvProgressStatus.setText(getString(R.string.err_data));
-//                    pbLoad.setIndeterminate(false);
-//                    break;
-//
-//            }
-//
-//        }
-//
-//
-//        if(requestCode == CODE_FILES_COUNTER) {
-//            pbLoad.setIndeterminate(false);
-//            layoutUpdateProccess.setVisibility(View.VISIBLE);
-//            tvProgressStatus.setText(getString(R.string.passports_update_proccess_title));
-//            pbLoad.setProgress(resultCode);
-//            counter =                                               resultCode;
-//        }
-//
-//        if(requestCode == CODE_FILES_TOTAL) {
-//            pbLoad.setIndeterminate(false);
-//            tvProgressStatus.setText(getString(R.string.passports_update_proccess_title));
-//            pbLoad.setMax(resultCode);
-//            total =                                                 resultCode;
-//        }
-//
-//        if(counter > 0 & total > 0) {
-//            String tvProgressText =                                 String.valueOf((int)counter) + "/" + String.valueOf((int)total);
-//            String tvProgressProcText =                             (int)((counter / total) * 100) + "%";
-//
-//            tvProgress.setText(tvProgressText);
-//            tvProgressProc.setText(tvProgressProcText);
-//        }
-//
-//    }
-
-
-
-
-
-    /**
      *  Создание сервиса для загрузки файлов
      * @param dwnlType      - параметр, указывающий какие именно файлы загружать
      *                      0 - все новые
@@ -466,21 +374,11 @@ public class FragmentPassportsUpdate
      */
     private void createDownloadService(int dwnlType) {
 
-//        PendingIntent piRequest;
-//        PendingIntent piRequest, piCounter, piTotal;
-//
         Intent updateDbServiceIntent =                              new Intent(getActivity().getBaseContext(), UpdatePassportsService.class);
-//        piRequest =                                                 getActivity().createPendingResult(RootActivity.CODE_REQUEST_PASSPORTS_UPDATE, updateDbServiceIntent, 0);
-//        piCounter =                                                 getActivity().createPendingResult(FragmentPassportsUpdate.CODE_FILES_COUNTER, updateDbServiceIntent, 0);
-//        piTotal =                                                   getActivity().createPendingResult(FragmentPassportsUpdate.CODE_FILES_TOTAL, updateDbServiceIntent, 0);
-//        piError =                               getActivity().createPendingResult(CODE_ERROR, updateDbServiceIntent, 0);
 
         updateDbServiceIntent
                 .putExtra(FragmentPassportsUpdate.DOWNLOAD_TYPE, dwnlType);
-//                .putExtra(RootActivity.PI_REQUEST, piRequest)
-//                .putExtra(FragmentPassportsUpdate.PI_FILES_COUNTER, piCounter)
-//                .putExtra(FragmentPassportsUpdate.PI_FILES_TOTAL, piTotal);
-//
+
         getActivity().startService(updateDbServiceIntent);
 
     }

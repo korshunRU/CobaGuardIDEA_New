@@ -73,7 +73,7 @@ public class GetSignalsService
             timer.schedule(st, 0, Settings.CHECK_SIGNALS_REPEAT_IN_SECONDS * 1000);
         }
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 
@@ -85,10 +85,9 @@ public class GetSignalsService
      */
     protected void disconnect() {
 
-        out.println("disconnect");
-        out.flush();
-
         if(out != null) {
+            out.println("disconnect");
+            out.flush();
             out.close();
         }
 
@@ -138,6 +137,7 @@ public class GetSignalsService
             this.in =                               new BufferedReader(new InputStreamReader(connectSocket.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
 
@@ -146,6 +146,7 @@ public class GetSignalsService
             out =                                   new PrintWriter(new BufferedWriter(new OutputStreamWriter(connectSocket.getOutputStream())), true);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
         return true;
