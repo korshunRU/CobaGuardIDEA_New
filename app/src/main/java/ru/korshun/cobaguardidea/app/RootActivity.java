@@ -4,7 +4,6 @@ package ru.korshun.cobaguardidea.app;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,8 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
-
-import java.util.List;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentObjects;
 import ru.korshun.cobaguardidea.app.fragments.FragmentPassports;
@@ -42,11 +39,11 @@ public class RootActivity
     private Toolbar                             toolbar;
     public NavigationView                       navigationView;
 
-    public static final String                  PI_REQUEST =                        "piRequest";
-
-    public static final int                     CODE_REQUEST_PASSPORTS_UPDATE =     0;
-    public static final int                     CODE_REQUEST_SIGNALS =              1;
-    public static final int                     CODE_REQUEST_OBJECTS =              2;
+//    public static final String                  PI_REQUEST =                        "piRequest";
+//
+//    public static final int                     CODE_REQUEST_PASSPORTS_UPDATE =     0;
+//    public static final int                     CODE_REQUEST_SIGNALS =              1;
+//    public static final int                     CODE_REQUEST_OBJECTS =              2;
 
     public static SimpleAdapter                 passportsListAdapter =              null;
     public static SimpleAdapter                 signalsListAdapter =                null;
@@ -94,19 +91,19 @@ public class RootActivity
      *  сервиса. Любого. А в самом фрагменте уже будем ловить данные и смотреть, что это и для
      *  чего прилетело
      */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        List<android.support.v4.app.Fragment> fragments = getSupportFragmentManager().getFragments();
-
-
-        for(android.support.v4.app.Fragment f : fragments) {
-            if (f != null) {
-                f.onActivityResult(requestCode, resultCode, data);
-            }
-        }
-
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//
+//        List<android.support.v4.app.Fragment> fragments = getSupportFragmentManager().getFragments();
+//
+//
+//        for(android.support.v4.app.Fragment f : fragments) {
+//            if (f != null) {
+//                f.onActivityResult(requestCode, resultCode, data);
+//            }
+//        }
+//
+//    }
 
 
 

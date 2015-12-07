@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 
 import java.util.Calendar;
 
@@ -29,6 +30,10 @@ public class ChangeNetworkStateReceiver
             final NetworkInfo ni =                                  connectivityManager.getActiveNetworkInfo();
 
             if (ni != null && ni.isConnected()) {
+
+                if(Boot.sharedPreferences == null) {
+                    Boot.sharedPreferences =                        PreferenceManager.getDefaultSharedPreferences(context);
+                }
 
                 if((Calendar.getInstance().getTimeInMillis() - startTimeInMs) > pauseInMs) {
 

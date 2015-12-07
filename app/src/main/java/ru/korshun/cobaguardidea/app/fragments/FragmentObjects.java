@@ -4,8 +4,10 @@ package ru.korshun.cobaguardidea.app.fragments;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -71,6 +73,11 @@ public class FragmentObjects
     private final String                                SENDER_SMS_NUMBER =                 Settings.SMS_NUMBERS_ARRAY[1];
 //    private final String                                SENDER_SMS_NUMBER =                 "InternetSMS";
 
+    public static final String                          PI_STATUS =                         "piStatus";
+
+    private BroadcastReceiver                           br =                                null;
+    public final static String                          BROADCAST_ACTION =                  "ru.korshun.fragmentobjects";
+    private IntentFilter                                intentFilter;
 
 
     @Override
@@ -90,6 +97,8 @@ public class FragmentObjects
         objectNumberEditText =                              (EditText) v.findViewById(R.id.object_guard_edittext);
         sendButton =                                        (Button) v.findViewById(R.id.object_guard_send_button);
         objectsList =                                       (ListView) v.findViewById(R.id.list_guard_objects_listView);
+
+        intentFilter =                                      new IntentFilter(BROADCAST_ACTION);
 
         readItemsFromDb();
 
@@ -167,6 +176,20 @@ public class FragmentObjects
             }
         });
 
+
+        br =                                                new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if(readItemsFromDb() == 0) {
+                    objectNumberEditText.setEnabled(true);
+                    objectNumberEditText.setText("");
+                }
+
+            }
+        };
+
+
         return v;
     }
 
@@ -222,20 +245,20 @@ public class FragmentObjects
      *
      *   Тут ловим requestCode == 2
      */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == RootActivity.CODE_REQUEST_OBJECTS) {
-
-            if(readItemsFromDb() == 0) {
-                objectNumberEditText.setEnabled(true);
-                objectNumberEditText.setText("");
-            }
-
-        }
-
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if(requestCode == RootActivity.CODE_REQUEST_OBJECTS) {
+//
+//            if(readItemsFromDb() == 0) {
+//                objectNumberEditText.setEnabled(true);
+//                objectNumberEditText.setText("");
+//            }
+//
+//        }
+//
+//    }
 
 
 
@@ -471,15 +494,15 @@ public class FragmentObjects
      *                                           2 - постановка на охрану
      */
     private void createService(int objectNumber, int type) {
-        PendingIntent piRequest;
+//        PendingIntent piRequest;
 
         Intent setObjectStatus =                new Intent(getActivity().getBaseContext(), SetGuardStatusService.class);
-        piRequest =                             getActivity().createPendingResult(RootActivity.CODE_REQUEST_OBJECTS, setObjectStatus, 0);
+//        piRequest =                             getActivity().createPendingResult(RootActivity.CODE_REQUEST_OBJECTS, setObjectStatus, 0);
 
         setObjectStatus
                 .putExtra(OBJECT_TO_SET_GUARD, objectNumber)
-                .putExtra(OBJECT_GUARD_STATUS, type)
-                .putExtra(RootActivity.PI_REQUEST, piRequest);
+                .putExtra(OBJECT_GUARD_STATUS, type);
+//                .putExtra(RootActivity.PI_REQUEST, piRequest);
 
         getActivity().startService(setObjectStatus);
     }
@@ -580,6 +603,28 @@ public class FragmentObjects
 
 
 
+
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(br != null) {
+            try {
+                getActivity().unregisterReceiver(br);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(br != null) {
+            getActivity().registerReceiver(br, intentFilter);
+        }
+    }
 
 
 

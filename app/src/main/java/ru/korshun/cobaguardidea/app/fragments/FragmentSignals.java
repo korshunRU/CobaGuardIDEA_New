@@ -1,9 +1,10 @@
 package ru.korshun.cobaguardidea.app.fragments;
 
 
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -54,14 +55,19 @@ public class FragmentSignals
     public static final String                              OBJECT_TO_CHECK_SIGNALS =           "OBJECT_NUMBER";
     public static final String                              SIGNALS_PATH =                      "SIGNALS_PATH";
 
-//    private final int                                       CODE_REQUEST =                      1;
-
     public static final int                                 SIGNALS_STATUS_COMPLITE =           1;
     public static final int                                 SIGNALS_STATUS_WAIT =               0;
     public static final int                                 SIGNALS_STATUS_ERROR =              -1;
     public static final int                                 SIGNALS_STATUS_NO_INTERNET =        -2;
     public static final int                                 SIGNALS_STATUS_CONNECT_ERROR =      -3;
     public static final int                                 SIGNALS_STATUS_AUTH_ERROR =         -4;
+
+    public static final String                              PI_STATUS =                         "piStatus";
+
+    private BroadcastReceiver                               br =                                null;
+    public final static String                              BROADCAST_ACTION =                  "ru.korshun.fragmentsignals";
+    private IntentFilter                                    intentFilter;
+
 
 
 
@@ -87,6 +93,8 @@ public class FragmentSignals
         objectNumberEditText =                              (EditText) v.findViewById(R.id.object_signals_edittext);
         sendButton =                                        (Button) v.findViewById(R.id.object_signals_send_button);
         signalsList =                                       (ListView) v.findViewById(R.id.list_signals_listView);
+
+        intentFilter =                                      new IntentFilter(BROADCAST_ACTION);
 
         readItemsFromDb();
 
@@ -152,6 +160,16 @@ public class FragmentSignals
         }
 
 
+        br =                                                new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                readItemsFromDb();
+
+            }
+        };
+
+
         return v;
     }
 
@@ -169,17 +187,17 @@ public class FragmentSignals
      *
      *   Тут ловим requestCode == 1
      */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == RootActivity.CODE_REQUEST_SIGNALS) {
-
-            readItemsFromDb();
-
-        }
-
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if(requestCode == RootActivity.CODE_REQUEST_SIGNALS) {
+//
+//            readItemsFromDb();
+//
+//        }
+//
+//    }
 
 
 
@@ -357,19 +375,45 @@ public class FragmentSignals
      * @param objectNumber                  - номер объекта
      */
     private void createService(int objectNumber) {
-        PendingIntent piRequest;
+//        PendingIntent piRequest;
 
         Intent getSignalsFile =                 new Intent(getActivity().getBaseContext(), GetSignalsService.class);
-        piRequest =                             getActivity().createPendingResult(RootActivity.CODE_REQUEST_SIGNALS, getSignalsFile, 0);
+//        piRequest =                             getActivity().createPendingResult(RootActivity.CODE_REQUEST_SIGNALS, getSignalsFile, 0);
 
         getSignalsFile
                 .putExtra(OBJECT_TO_CHECK_SIGNALS, objectNumber)
-                .putExtra(SIGNALS_PATH, cobaSignalsPath)
-                .putExtra(RootActivity.PI_REQUEST, piRequest);
+                .putExtra(SIGNALS_PATH, cobaSignalsPath);
+//                .putExtra(RootActivity.PI_REQUEST, piRequest);
 
         getActivity().startService(getSignalsFile);
     }
 
+
+
+
+
+
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(br != null) {
+            try {
+                getActivity().unregisterReceiver(br);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(br != null) {
+            getActivity().registerReceiver(br, intentFilter);
+        }
+    }
 
 
 

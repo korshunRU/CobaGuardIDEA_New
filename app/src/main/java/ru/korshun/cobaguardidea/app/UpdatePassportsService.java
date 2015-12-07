@@ -109,6 +109,7 @@ public class UpdatePassportsService
 
     private NotificationCompat.Builder mBuilder;
     private NotificationManager nm;
+    private Intent intent;
 
 
 
@@ -121,6 +122,8 @@ public class UpdatePassportsService
 
         serverIp =                                      Boot.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null);
         lastUpdatedDate =                               Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0);
+
+        this.intent =                                   new Intent(FragmentPassportsUpdate.BROADCAST_ACTION);
 
         nm =                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder =                                      new NotificationCompat.Builder(getApplicationContext())
@@ -135,6 +138,14 @@ public class UpdatePassportsService
 
             nm
                     .notify(notificationId, mBuilder.build());
+
+
+            this.intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+            this.intent.putExtra(FragmentPassportsUpdate.PI_COUNT, 0);
+            this.intent.putExtra(FragmentPassportsUpdate.PI_TOTAL, 0);
+
+            sendBroadcast(this.intent);
+
 
             new Thread(new Runnable() {
                 @Override
@@ -224,7 +235,6 @@ public class UpdatePassportsService
     private void getFiles(int startId, int objectNumber) {
 
         allFilesSocket =                                new Socket();
-        Intent intent =                                 new Intent(FragmentPassportsUpdate.BROADCAST_ACTION);
 //        int total;
 
 
@@ -252,10 +262,10 @@ public class UpdatePassportsService
         int sizeSend =                                      0;
         int total =                                         0;
 
-        intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-        intent.putExtra(FragmentPassportsUpdate.PI_COUNT, 0);
-        intent.putExtra(FragmentPassportsUpdate.PI_TOTAL, total);
-        sendBroadcast(intent);
+//        intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_CONNECT);
+//        intent.putExtra(FragmentPassportsUpdate.PI_COUNT, 0);
+//        intent.putExtra(FragmentPassportsUpdate.PI_TOTAL, total);
+//        sendBroadcast(intent);
 
         in =                                            createBufferReader(allFilesSocket);
         out =                                           createPrintWriter(allFilesSocket);

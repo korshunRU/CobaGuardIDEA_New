@@ -1,6 +1,6 @@
 package ru.korshun.cobaguardidea.app;
 
-import android.app.PendingIntent;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentObjects;
+import ru.korshun.cobaguardidea.app.fragments.FragmentSignals;
 
 
 /**
@@ -46,8 +47,8 @@ public class SetGuardStatusService
      *  PI для "общения" с Activity
      *  Для отсыла статусов соединения, счетчика переданных файлов, общего числа файлов и ошибок
      */
-    private PendingIntent piRequest;
-
+//    private PendingIntent piRequest;
+    private Intent intent;
 
 
 
@@ -59,8 +60,9 @@ public class SetGuardStatusService
 //        System.out.println("myapp : onStartCommand");
 
         if(intent != null) {
-            piRequest =                                 intent.getParcelableExtra(RootActivity.PI_REQUEST);
+//            piRequest =                                 intent.getParcelableExtra(RootActivity.PI_REQUEST);
             objectToSetGuard =                          intent.getIntExtra(FragmentObjects.OBJECT_TO_SET_GUARD, 0);
+            this.intent =                               new Intent(FragmentObjects.BROADCAST_ACTION);
 
             switch (intent.getIntExtra(FragmentObjects.OBJECT_GUARD_STATUS, 0)) {
 
@@ -86,7 +88,7 @@ public class SetGuardStatusService
             timer.schedule(st, 0, Settings.CHECK_GUARD_REPEAT_IN_SECONDS * 1000);
         }
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 
@@ -139,11 +141,14 @@ public class SetGuardStatusService
         } catch (IOException e) {
             e.printStackTrace();
 
-            try {
-                piRequest.send(FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
-            } catch (PendingIntent.CanceledException e1) {
-                e1.printStackTrace();
-            }
+            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
+            sendBroadcast(intent);
+
+//            try {
+//                piRequest.send(FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
+//            } catch (PendingIntent.CanceledException e1) {
+//                e1.printStackTrace();
+//            }
 
             return false;
         }
@@ -154,6 +159,11 @@ public class SetGuardStatusService
             this.in =                               new BufferedReader(new InputStreamReader(connectSocket.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
+
+            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_ERROR);
+            sendBroadcast(intent);
+
+            return false;
         }
 
 
@@ -162,6 +172,11 @@ public class SetGuardStatusService
             out =                                   new PrintWriter(new BufferedWriter(new OutputStreamWriter(connectSocket.getOutputStream())), true);
         } catch (IOException e) {
             e.printStackTrace();
+
+            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_ERROR);
+            sendBroadcast(intent);
+
+            return false;
         }
 
         return true;
@@ -285,13 +300,18 @@ public class SetGuardStatusService
                     dbHelper.close();
                     timer.cancel();
 
-                    try {
-                        piRequest.send(FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
-                    } catch (PendingIntent.CanceledException e1) {
-                        e1.printStackTrace();
-                    } finally {
-                        stopSelf(startId);
-                    }
+                    intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
+                    sendBroadcast(intent);
+
+                    stopSelf(startId);
+
+//                    try {
+//                        piRequest.send(FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
+//                    } catch (PendingIntent.CanceledException e1) {
+//                        e1.printStackTrace();
+//                    } finally {
+//                        stopSelf(startId);
+//                    }
 
                     return;
                 }
@@ -323,13 +343,18 @@ public class SetGuardStatusService
                             disconnect();
                             timer.cancel();
 
-                            try {
-                                piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
-                            } catch (PendingIntent.CanceledException e1) {
-                                e1.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+                            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_ERROR);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+//                            try {
+//                                piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
+//                            } catch (PendingIntent.CanceledException e1) {
+//                                e1.printStackTrace();
+//                            } finally {
+//                                stopSelf(startId);
+//                            }
                             return;
                         }
 
@@ -343,13 +368,18 @@ public class SetGuardStatusService
                             disconnect();
                             timer.cancel();
 
-                            try {
-                                piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+                            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_ERROR);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+//                            try {
+//                                piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
+//                            } catch (PendingIntent.CanceledException e) {
+//                                e.printStackTrace();
+//                            } finally {
+//                                stopSelf(startId);
+//                            }
 
                             return;
 
@@ -367,13 +397,18 @@ public class SetGuardStatusService
                             disconnect();
                             timer.cancel();
 
-                            try {
-                                piRequest.send(FragmentObjects.GUARD_STATUS_AUTH_ERROR);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+                            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_AUTH_ERROR);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+//                            try {
+//                                piRequest.send(FragmentObjects.GUARD_STATUS_AUTH_ERROR);
+//                            } catch (PendingIntent.CanceledException e) {
+//                                e.printStackTrace();
+//                            } finally {
+//                                stopSelf(startId);
+//                            }
 
                             return;
 
@@ -388,13 +423,18 @@ public class SetGuardStatusService
                             disconnect();
                             timer.cancel();
 
-                            try {
-                                piRequest.send(FragmentObjects.GUARD_STATUS_CLEAR_FILE);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+                            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_CLEAR_FILE);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+//                            try {
+//                                piRequest.send(FragmentObjects.GUARD_STATUS_CLEAR_FILE);
+//                            } catch (PendingIntent.CanceledException e) {
+//                                e.printStackTrace();
+//                            } finally {
+//                                stopSelf(startId);
+//                            }
 
                             return;
 
@@ -409,13 +449,18 @@ public class SetGuardStatusService
                             disconnect();
                             timer.cancel();
 
-                            try {
-                                piRequest.send(FragmentObjects.GUARD_STATUS_QUERY_ERROR);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+                            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_QUERY_ERROR);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+//                            try {
+//                                piRequest.send(FragmentObjects.GUARD_STATUS_QUERY_ERROR);
+//                            } catch (PendingIntent.CanceledException e) {
+//                                e.printStackTrace();
+//                            } finally {
+//                                stopSelf(startId);
+//                            }
 
                             return;
 
@@ -431,13 +476,18 @@ public class SetGuardStatusService
                             disconnect();
                             timer.cancel();
 
-                            try {
-                                piRequest.send(FragmentObjects.GUARD_STATUS_OFF);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+                            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_OFF);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+//                            try {
+//                                piRequest.send(FragmentObjects.GUARD_STATUS_OFF);
+//                            } catch (PendingIntent.CanceledException e) {
+//                                e.printStackTrace();
+//                            } finally {
+//                                stopSelf(startId);
+//                            }
 
                             return;
 
@@ -452,13 +502,18 @@ public class SetGuardStatusService
                             disconnect();
                             timer.cancel();
 
-                            try {
-                                piRequest.send(FragmentObjects.GUARD_STATUS_ON);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+                            intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_ON);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+//                            try {
+//                                piRequest.send(FragmentObjects.GUARD_STATUS_ON);
+//                            } catch (PendingIntent.CanceledException e) {
+//                                e.printStackTrace();
+//                            } finally {
+//                                stopSelf(startId);
+//                            }
 
                             return;
                         }
@@ -474,6 +529,9 @@ public class SetGuardStatusService
                     setStatusToDb(db, FragmentObjects.GUARD_STATUS_ERROR, objectNumber, DbHelper.DB_TABLE_GUARD);
                     dbHelper.close();
 
+                    intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_ERROR);
+                    sendBroadcast(intent);
+
                     // отправляем на сервер команду очистки файла запросов
                     out.println("setObjectStatus:" + objectToSetGuard + ":0:" + deviceId);
                     out.flush();
@@ -481,13 +539,15 @@ public class SetGuardStatusService
                     disconnect();
                     timer.cancel();
 
-                    try {
-                        piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                    } finally {
-                        stopSelf(startId);
-                    }
+                    stopSelf(startId);
+
+//                    try {
+//                        piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
+//                    } catch (PendingIntent.CanceledException e) {
+//                        e.printStackTrace();
+//                    } finally {
+//                        stopSelf(startId);
+//                    }
 
 
 
@@ -510,13 +570,18 @@ public class SetGuardStatusService
                 dbHelper.close();
                 timer.cancel();
 
-                try {
-                    piRequest.send(FragmentObjects.GUARD_STATUS_NO_INTERNET);
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                } finally {
-                    stopSelf(startId);
-                }
+                intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_NO_INTERNET);
+                sendBroadcast(intent);
+
+                stopSelf(startId);
+
+//                try {
+//                    piRequest.send(FragmentObjects.GUARD_STATUS_NO_INTERNET);
+//                } catch (PendingIntent.CanceledException e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    stopSelf(startId);
+//                }
 
             }
 

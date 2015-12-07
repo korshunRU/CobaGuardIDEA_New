@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.support.v4.app.Fragment;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -29,6 +28,9 @@ import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.UpdatePassportsService;
+
+
+
 
 public class FragmentPassportsUpdate
         extends Fragment {
@@ -80,8 +82,8 @@ public class FragmentPassportsUpdate
     public static final int             CODE_STATUS_UPDATING =                      -5;
 
     public static final String          PI_STATUS =                                 "piStatus";
-    public static final String          PI_SIZE_SEND =                              "piSizeSend";
-    public static final String          PI_SIZE_FILE =                              "piSizeFile";
+//    public static final String          PI_SIZE_SEND =                              "piSizeSend";
+//    public static final String          PI_SIZE_FILE =                              "piSizeFile";
     public static final String          PI_COUNT =                                  "piCount";
     public static final String          PI_TOTAL =                                  "piTotal";
 
@@ -169,15 +171,15 @@ public class FragmentPassportsUpdate
             @Override
             public void onClick(View v) {
 
-                long thisTime = Calendar.getInstance().getTimeInMillis();
+                long thisTime =                                     Calendar.getInstance().getTimeInMillis();
 
                 if (clickCount != 0) {
                     if ((thisTime - clickTime) < 1000) {
                         clickCount++;
-                        clickTime = Calendar.getInstance().getTimeInMillis();
+                        clickTime =                                 Calendar.getInstance().getTimeInMillis();
                     } else {
-                        clickCount = 0;
-                        clickTime = 0l;
+                        clickCount =                                0;
+                        clickTime =                                 0l;
                     }
                 }
                 if (clickCount == 10) {
@@ -186,12 +188,12 @@ public class FragmentPassportsUpdate
                             .putLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, Calendar.getInstance().getTimeInMillis())
                             .apply();
                     Toast.makeText(getActivity().getApplicationContext(), "DONE!", Toast.LENGTH_LONG).show();
-                    clickTime = 0l;
+                    clickTime =                                     0l;
                     tvLastUpdateDate.setText(getLastUpdateDate());
                 }
                 if (clickCount == 0) {
                     clickCount++;
-                    clickTime = Calendar.getInstance().getTimeInMillis();
+                    clickTime =                                     Calendar.getInstance().getTimeInMillis();
                 }
             }
         });
@@ -200,7 +202,7 @@ public class FragmentPassportsUpdate
 
 
         //создание broadcast receiver
-        br = new BroadcastReceiver() {
+        br =                                                        new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 

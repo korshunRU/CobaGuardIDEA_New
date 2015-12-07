@@ -23,6 +23,7 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ru.korshun.cobaguardidea.app.fragments.FragmentPassportsUpdate;
 import ru.korshun.cobaguardidea.app.fragments.FragmentSignals;
 
 
@@ -50,8 +51,8 @@ public class GetSignalsService
      *  PI для "общения" с Activity
      *  Для отсыла статусов соединения, счетчика переданных файлов, общего числа файлов и ошибок
      */
-    private PendingIntent piRequest;
-
+//    private PendingIntent piRequest;
+    private Intent                  intent;
 
 
 
@@ -63,9 +64,10 @@ public class GetSignalsService
 //        System.out.println("myapp : onStartCommand");
 
         if(intent != null) {
-            piRequest =                                 intent.getParcelableExtra(RootActivity.PI_REQUEST);
+//            piRequest =                                 intent.getParcelableExtra(RootActivity.PI_REQUEST);
             objectToCheckSignals =                      intent.getIntExtra(FragmentSignals.OBJECT_TO_CHECK_SIGNALS, 0);
             cobaSignalsPath =                           intent.getStringExtra(FragmentSignals.SIGNALS_PATH);
+            this.intent =                               new Intent(FragmentSignals.BROADCAST_ACTION);
 
             Timer timer =                               new Timer();
             ScheduledCheckSignals st =                  new ScheduledCheckSignals(objectToCheckSignals, timer, startId);
@@ -122,11 +124,8 @@ public class GetSignalsService
         } catch (IOException e) {
             e.printStackTrace();
 
-            try {
-                piRequest.send(FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
-            } catch (PendingIntent.CanceledException e1) {
-                e1.printStackTrace();
-            }
+            intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
+            sendBroadcast(intent);
 
             return false;
         }
@@ -137,6 +136,10 @@ public class GetSignalsService
             this.in =                               new BufferedReader(new InputStreamReader(connectSocket.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
+
+            intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
+            sendBroadcast(intent);
+
             return false;
         }
 
@@ -146,6 +149,10 @@ public class GetSignalsService
             out =                                   new PrintWriter(new BufferedWriter(new OutputStreamWriter(connectSocket.getOutputStream())), true);
         } catch (IOException e) {
             e.printStackTrace();
+
+            intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
+            sendBroadcast(intent);
+
             return false;
         }
 
@@ -228,13 +235,11 @@ public class GetSignalsService
                     setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR, objectToCheckSignals, DbHelper.DB_TABLE_SIGNALS);
                     dbHelper.close();
                     timer.cancel();
-                    try {
-                        piRequest.send(FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
-                    } catch (PendingIntent.CanceledException e1) {
-                        e1.printStackTrace();
-                    } finally {
-                        stopSelf(startId);
-                    }
+
+                    intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
+                    sendBroadcast(intent);
+
+                    stopSelf(startId);
 
                     return;
                 }
@@ -265,13 +270,11 @@ public class GetSignalsService
                             e.printStackTrace();
                             disconnect();
                             timer.cancel();
-                            try {
-                                piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
-                            } catch (PendingIntent.CanceledException e1) {
-                                e1.printStackTrace();
-                            } finally {
-                                stopSelf(startId);
-                            }
+
+                            intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
 
                             return;
                         }
@@ -282,23 +285,15 @@ public class GetSignalsService
 
                             setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_AUTH_ERROR, objectNumber, DbHelper.DB_TABLE_SIGNALS);
                             dbHelper.close();
-                            try {
-                                piRequest.send(FragmentSignals.SIGNALS_STATUS_AUTH_ERROR);
-                            } catch (PendingIntent.CanceledException e) {
-                                e.printStackTrace();
-                                disconnect();
-                                timer.cancel();
+                            disconnect();
+                            timer.cancel();
 
-                                try {
-                                    piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
-                                } catch (PendingIntent.CanceledException e1) {
-                                    e1.printStackTrace();
-                                } finally {
-                                    stopSelf(startId);
-                                }
+                            intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_AUTH_ERROR);
+                            sendBroadcast(intent);
 
-                                return;
-                            }
+                            stopSelf(startId);
+
+                            return;
 
                         }
 
@@ -307,20 +302,20 @@ public class GetSignalsService
                         if (fileSize > 0) {
 
                             String fileName;
+                            int bufferSize;
 
                             try {
                                 fileName =              in.readLine();
+                                bufferSize =            Integer.parseInt(in.readLine());
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 disconnect();
                                 timer.cancel();
-                                try {
-                                    piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
-                                } catch (PendingIntent.CanceledException e1) {
-                                    e1.printStackTrace();
-                                } finally {
-                                    stopSelf(startId);
-                                }
+
+                                intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
+                                sendBroadcast(intent);
+
+                                stopSelf(startId);
 
                                 return;
                             }
@@ -335,72 +330,95 @@ public class GetSignalsService
                                 dbHelper.close();
                                 disconnect();
                                 timer.cancel();
-                                try {
-                                    piRequest.send(FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
-                                } catch (PendingIntent.CanceledException e1) {
-                                    e1.printStackTrace();
-                                } finally {
-                                    stopSelf(startId);
-                                }
+
+                                intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR);
+                                sendBroadcast(intent);
+
+                                stopSelf(startId);
 
                                 return;
                             }
 
-                            byte[] buffer = new byte[8 * 1024];
+                            byte[] buffer =                     new byte[bufferSize * 1024];
+                            int status =                        FragmentSignals.SIGNALS_STATUS_ERROR;
+
+                            FileOutputStream fos =              null;
+                            BufferedOutputStream bos =          null;
+                            DataInputStream dis =               null;
 
                             try {
-                                FileOutputStream fos =          new FileOutputStream(cobaSignalsPath + File.separator + fileName);
-                                BufferedOutputStream bos =      new BufferedOutputStream(fos);
-                                DataInputStream dis =           new DataInputStream(serverFile.getInputStream());
 
-                                int count, totalLength = 0;
+                                fos =                           new FileOutputStream(cobaSignalsPath + File.separator + fileName);
+                                bos =                           new BufferedOutputStream(fos);
+                                dis =                           new DataInputStream(serverFile.getInputStream());
+
+                                int count, totalLength =        0;
 
                                 while ((count = dis.read(buffer, 0, buffer.length)) != -1) {
 
-                                    totalLength +=              count;
+                                    totalLength += count;
                                     bos.write(buffer, 0, count);
                                     bos.flush();
 
                                     if (totalLength == fileSize) {
+                                        status =                FragmentSignals.SIGNALS_STATUS_COMPLITE;
                                         break;
                                     }
 
                                 }
 
-                                fos.close();
-                                bos.close();
-                                dis.close();
-
-                                serverFile.close();
-
-                                setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_COMPLITE, objectNumber, DbHelper.DB_TABLE_SIGNALS);
-                                dbHelper.close();
-                                disconnect();
-                                timer.cancel();
-
-                                try {
-                                    piRequest.send(FragmentSignals.SIGNALS_STATUS_COMPLITE);
-                                } catch (PendingIntent.CanceledException e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    stopSelf(startId);
-                                }
-
-                                return;
-
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 disconnect();
                                 timer.cancel();
-                                try {
-                                    piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
-                                } catch (PendingIntent.CanceledException e1) {
-                                    e1.printStackTrace();
-                                } finally {
-                                    stopSelf(startId);
-                                }
+
+                                intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
+                                sendBroadcast(intent);
+
+                                stopSelf(startId);
 
                                 return;
+
+                            } finally {
+
+                                if(fos != null) {
+                                    try {
+                                        fos.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if(bos != null) {
+                                    try {
+                                        bos.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if(dis != null) {
+                                    try {
+                                        dis.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                try {
+                                    serverFile.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                setStatusToDb(db, status, objectNumber, DbHelper.DB_TABLE_SIGNALS);
+                                dbHelper.close();
+                                disconnect();
+                                timer.cancel();
+
+                                intent.putExtra(FragmentSignals.PI_STATUS, status);
+                                sendBroadcast(intent);
+
+                                stopSelf(startId);
+
                             }
 
                         }
@@ -418,13 +436,10 @@ public class GetSignalsService
                     disconnect();
                     timer.cancel();
 
-                    try {
-                        piRequest.send(FragmentSignals.SIGNALS_STATUS_ERROR);
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                    } finally {
-                        stopSelf(startId);
-                    }
+                    intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
+                    sendBroadcast(intent);
+
+                    stopSelf(startId);
 
                     return;
                 }
@@ -442,13 +457,12 @@ public class GetSignalsService
                 dbHelper.close();
                 disconnect();
                 timer.cancel();
-                try {
-                    piRequest.send(FragmentSignals.SIGNALS_STATUS_NO_INTERNET);
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                } finally {
-                    stopSelf(startId);
-                }
+
+                intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_NO_INTERNET);
+                sendBroadcast(intent);
+
+                stopSelf(startId);
+
             }
 
         }
