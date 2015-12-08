@@ -20,6 +20,7 @@ public class FragmentSettings
         extends PreferenceFragment {
 
 
+    public final static String VERSION =                                "pref_view_version";
     public final static String PASSPORTS_PATH_KEY =                     "pref_view_passports_path";
     public final static String SERVER_ADDRESS_KEY =                     "pref_set_server";
     public final static String SMS_OWNER_KEY =                          "pref_set_sms_sender";
@@ -36,6 +37,11 @@ public class FragmentSettings
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
 
+
+        //Установки для просмотра версии программы
+        final ListPreference viewVersion =                              (ListPreference) findPreference(VERSION);
+
+        viewVersion.setSummary(getString(R.string.version));
 
 
         //Установки для просмотра расположения папки с паспортами

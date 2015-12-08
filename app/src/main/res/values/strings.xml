@@ -79,5 +79,6 @@
     <string name="notification_title_legend">Нажмите для запуска</string>
     <string name="passports_no_update_error">ТРЕБУЕТСЯ ОБНОВИТЬ БД ПАСПОРТОВ</string>
     <string name="passports_update_find_title">Поиск файлов</string>
+    <string name="pref_view_version_title">Версия программы</string>
 
 </resources>

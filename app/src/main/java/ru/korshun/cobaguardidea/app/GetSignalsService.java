@@ -1,6 +1,7 @@
 package ru.korshun.cobaguardidea.app;
 
-import android.app.PendingIntent;
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,6 +12,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,8 +24,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import ru.korshun.cobaguardidea.app.fragments.FragmentPassportsUpdate;
 import ru.korshun.cobaguardidea.app.fragments.FragmentSignals;
 
 
@@ -345,12 +345,14 @@ public class GetSignalsService
                             FileOutputStream fos =              null;
                             BufferedOutputStream bos =          null;
                             DataInputStream dis =               null;
+                            DataOutputStream dosTestConnect =   null;
 
                             try {
 
                                 fos =                           new FileOutputStream(cobaSignalsPath + File.separator + fileName);
                                 bos =                           new BufferedOutputStream(fos);
                                 dis =                           new DataInputStream(serverFile.getInputStream());
+                                dosTestConnect =                new DataOutputStream(serverFile.getOutputStream());
 
                                 int count, totalLength =        0;
 
@@ -362,6 +364,16 @@ public class GetSignalsService
 
                                     if (totalLength == fileSize) {
                                         status =                FragmentSignals.SIGNALS_STATUS_COMPLITE;
+
+                                        dosTestConnect.write(1);
+                                        dosTestConnect.flush();
+
+                                        break;
+                                    }
+
+                                    if(totalLength > fileSize) {
+                                        dosTestConnect.write(0);
+                                        dosTestConnect.flush();
                                         break;
                                     }
 
@@ -369,6 +381,15 @@ public class GetSignalsService
 
                             } catch (IOException e) {
                                 e.printStackTrace();
+
+                                if(dosTestConnect != null) {
+                                    try {
+                                        dosTestConnect.write(0);
+                                        dosTestConnect.flush();
+                                    } catch (IOException e1) {
+                                        e1.printStackTrace();
+                                    }
+                                }
                                 disconnect();
                                 timer.cancel();
 
@@ -398,6 +419,13 @@ public class GetSignalsService
                                 if(dis != null) {
                                     try {
                                         dis.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if(dosTestConnect != null) {
+                                    try {
+                                        dosTestConnect.close();
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }

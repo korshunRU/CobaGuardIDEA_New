@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
@@ -119,6 +120,10 @@ public class UpdatePassportsService
     public int onStartCommand(Intent intent, int flags, final int startId) {
 
         objectToDownload =                              intent.getIntExtra(FragmentPassportsUpdate.DOWNLOAD_TYPE, 0);
+
+        if(Boot.sharedPreferences == null) {
+            Boot.sharedPreferences =                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        }
 
         serverIp =                                      Boot.sharedPreferences.getString(FragmentSettings.SERVER_ADDRESS_KEY, null);
         lastUpdatedDate =                               Boot.sharedPreferences.getLong(FragmentPassportsUpdate.LAST_UPDATE_DATE_KEY, 0);
@@ -235,7 +240,6 @@ public class UpdatePassportsService
     private void getFiles(int startId, int objectNumber) {
 
         allFilesSocket =                                new Socket();
-//        int total;
 
 
 
@@ -260,12 +264,7 @@ public class UpdatePassportsService
 
         int sizeFile;
         int sizeSend =                                      0;
-        int total =                                         0;
-
-//        intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_CONNECT);
-//        intent.putExtra(FragmentPassportsUpdate.PI_COUNT, 0);
-//        intent.putExtra(FragmentPassportsUpdate.PI_TOTAL, total);
-//        sendBroadcast(intent);
+        int total;
 
         in =                                            createBufferReader(allFilesSocket);
         out =                                           createPrintWriter(allFilesSocket);
@@ -316,13 +315,13 @@ public class UpdatePassportsService
 
 
         if (objectNumber > 0) {
-            out.println("getFile:" + objectNumber + ":" + deviceId);
+            out.println("getObjectFiles:" + objectNumber + ":" + deviceId);
         }
 
 
 
         else {
-            out.println("getFilesNew:" + lastUpdatedDate + ":" + deviceId);
+            out.println("getNewFiles:" + lastUpdatedDate + ":" + deviceId);
         }
 
 
@@ -337,7 +336,7 @@ public class UpdatePassportsService
         try {
             total =                                     Integer.parseInt(in.readLine());
             bufferSize =                                Integer.parseInt(in.readLine());
-        } catch (IOException e) {
+        } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
             disconnectFromServer();
 
@@ -436,7 +435,7 @@ public class UpdatePassportsService
             try {
                 fileName =                              this.in.readLine();
                 sizeFile =                              Integer.parseInt(in.readLine());
-            } catch (IOException e) {
+            } catch (IOException | NumberFormatException e) {
                 e.printStackTrace();
                 disconnectFromServer();
 
@@ -488,6 +487,7 @@ public class UpdatePassportsService
             BufferedOutputStream bos =                  new BufferedOutputStream(fos);
             DataInputStream dis;
             DataOutputStream dosTestConnect;
+
             try {
                 dis =                                   new DataInputStream(downloadFilesSocket.getInputStream());
                 dosTestConnect =                        new DataOutputStream(downloadFilesSocket.getOutputStream());
@@ -539,8 +539,6 @@ public class UpdatePassportsService
 
                         nm.notify(notificationId, mBuilder.build());
 
-
-//                        sizeFile =          0;
                         sizeSend =          0;
 
                         break;

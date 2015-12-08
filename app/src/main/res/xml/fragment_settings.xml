@@ -5,6 +5,12 @@
     android:layout_height="match_parent">
 
     <ListPreference
+        android:key="pref_view_version"
+        android:title="@string/pref_view_version_title"
+        android:enabled="false">
+    </ListPreference>
+
+    <ListPreference
         android:key="pref_view_passports_path"
         android:title="@string/pref_view_passports_path_title"
         android:enabled="false">
