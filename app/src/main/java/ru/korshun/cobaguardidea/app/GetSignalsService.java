@@ -42,7 +42,7 @@ public class GetSignalsService
 //    private final String            SERVER_IP =                                 Settings.SERVERS_IP_ARRAY[3]; "192.168.43.138" 85.12.240.55
 
 
-    private Socket                  connectSocket;
+    private Socket                  connectSocket =                             null;
     private PrintWriter             out =                                       null;
     private BufferedReader          in =                                        null;
 
@@ -101,12 +101,13 @@ public class GetSignalsService
             }
         }
 
-        try {
-            connectSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(connectSocket != null) {
+            try {
+                connectSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
 

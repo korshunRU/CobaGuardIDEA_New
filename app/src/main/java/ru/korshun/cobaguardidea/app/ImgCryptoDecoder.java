@@ -87,10 +87,15 @@ public class ImgCryptoDecoder {
 
 
     private byte[] decode(String str) {
-			if (str == null)  { return  null; }
-		byte data[] = str.getBytes();
-	    return decode(data);
-	}
+        if (str == null) {
+            return null;
+        }
+        byte data[] = str.getBytes();
+        if (data.length > 0) {
+            return decode(data);
+        }
+        else return null;
+    }
 
     private byte[] decode(byte[] data) {
 

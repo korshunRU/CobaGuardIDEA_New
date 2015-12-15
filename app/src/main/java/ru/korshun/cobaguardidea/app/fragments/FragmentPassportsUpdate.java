@@ -209,8 +209,8 @@ public class FragmentPassportsUpdate
                 int status =                intent.getIntExtra(PI_STATUS, 0);
 //                int sizeSend =              intent.getIntExtra(PI_SIZE_SEND, 0);
 //                int sizeFile =              intent.getIntExtra(PI_SIZE_FILE, 0);
-                int count =                 intent.getIntExtra(PI_COUNT, 0);
-                int total =                 intent.getIntExtra(PI_TOTAL, 0);
+                int count =              intent.getIntExtra(PI_COUNT, 0);
+                int total =              intent.getIntExtra(PI_TOTAL, 0);
 
                 switch (status) {
 
@@ -236,7 +236,7 @@ public class FragmentPassportsUpdate
                         pbLoad.setProgress(count);
 
                         tvProgress.setText(count + "/" + total);
-                        tvProgressProc.setText(((count / total) * 100) + "%");
+                        tvProgressProc.setText((int)(((double) count / (double)total) * 100) + "%");
 
                         break;
 

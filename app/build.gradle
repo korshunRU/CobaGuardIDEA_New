@@ -19,8 +19,8 @@ android {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 16
-        versionName "4.2.0"
+        versionCode 17
+        versionName "4.2.1"
     }
 
     buildTypes {

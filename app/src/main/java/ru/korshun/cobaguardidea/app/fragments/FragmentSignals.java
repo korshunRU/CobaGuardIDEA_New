@@ -155,6 +155,23 @@ public class FragmentSignals
         });
 
 
+        signalsList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                TextView objectNumber =                     (TextView) view.findViewById(R.id.signals_item_object_number);
+                TextView status =                           (TextView) view.findViewById(R.id.signals_item_hide_status);
+
+                if(Integer.parseInt(status.getText().toString()) != SIGNALS_STATUS_WAIT &&
+                        Functions.isInteger(objectNumber.getText().toString())) {
+                    storeObjectQuery(objectNumber.getText().toString());
+                }
+
+                return true;
+            }
+        });
+
+
         if(RootActivity.signalsListAdapter != null) {
             setAdapter();
         }
@@ -174,30 +191,6 @@ public class FragmentSignals
     }
 
 
-
-
-
-
-    /**
-     *  Ловим данные, которые прилетели из Activity
-     *  Смотрим на requestCode - это порядковый номер фрагмента:
-     *   0 - фрагмент списка паспортов
-     *   1 - фрагмент сигналов
-     *   2 - фрагмент снятия\постановки объекта
-     *
-     *   Тут ловим requestCode == 1
-     */
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if(requestCode == RootActivity.CODE_REQUEST_SIGNALS) {
-//
-//            readItemsFromDb();
-//
-//        }
-//
-//    }
 
 
 
