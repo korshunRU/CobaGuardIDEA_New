@@ -20,7 +20,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentObjects;
-import ru.korshun.cobaguardidea.app.fragments.FragmentSignals;
 
 
 /**
@@ -31,7 +30,7 @@ public class SetGuardStatusService
 
 
     private int                     objectToSetGuard;
-    private String                  objectGuardStatus;
+    private String                  objectGuardStatus =                         "0";
 
 //    private final String            SERVER_IP =                                 "192.168.43.138";
 //    private final String            SERVER_IP =                                 Settings.SERVERS_IP_ARRAY[0];
@@ -250,11 +249,8 @@ public class SetGuardStatusService
 
         private int objectNumber, startId;
 
-        private String objectGuardStatus;
+        private String objectStatus;
 
-
-//        private DbHelper dbHelper;
-//        private SQLiteDatabase db;
 
         private TelephonyManager tManager =             (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         private String deviceId =                       tManager.getDeviceId();
@@ -266,11 +262,9 @@ public class SetGuardStatusService
 
         public ScheduledCheckGuardAnswer(int objectNumber, String objectGuardStatus, Timer timer, int startId) {
             this.objectNumber =                         objectNumber;
-            this.objectGuardStatus =                    objectGuardStatus;
+            this.objectStatus =                         objectGuardStatus;
             this.startId =                              startId;
             this.timer =                                timer;
-//            this.dbHelper =                             dbHelper;
-//            this.db =                                   db;
         }
 
 
@@ -296,7 +290,7 @@ public class SetGuardStatusService
 
                 // Если попытка соединения не удалась - выходим из функции и делаем запись в БД
                 if(!connect()) {
-                    setStatusToDb(db, FragmentObjects.GUARD_STATUS_CONNECT_ERROR, objectToSetGuard, DbHelper.DB_TABLE_GUARD);
+                    setStatusToDb(db, FragmentObjects.GUARD_STATUS_CONNECT_ERROR, objectNumber, DbHelper.DB_TABLE_GUARD);
                     dbHelper.close();
                     timer.cancel();
 
@@ -304,14 +298,6 @@ public class SetGuardStatusService
                     sendBroadcast(intent);
 
                     stopSelf(startId);
-
-//                    try {
-//                        piRequest.send(FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
-//                    } catch (PendingIntent.CanceledException e1) {
-//                        e1.printStackTrace();
-//                    } finally {
-//                        stopSelf(startId);
-//                    }
 
                     return;
                 }
@@ -322,7 +308,7 @@ public class SetGuardStatusService
                 if(out != null) {
 
                     // отправляем на сервер команду запроса файла
-                    out.println("setObjectStatus:" + objectToSetGuard + ":" + objectGuardStatus + ":" + deviceId);
+                    out.println("setObjectStatus:" + objectNumber + ":" + objectStatus + ":" + deviceId + ":" + getResources().getString(R.string.version_short));
                     out.flush();
 
                     // читаем ответ сервера
@@ -348,13 +334,6 @@ public class SetGuardStatusService
 
                             stopSelf(startId);
 
-//                            try {
-//                                piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
-//                            } catch (PendingIntent.CanceledException e1) {
-//                                e1.printStackTrace();
-//                            } finally {
-//                                stopSelf(startId);
-//                            }
                             return;
                         }
 
@@ -372,14 +351,6 @@ public class SetGuardStatusService
                             sendBroadcast(intent);
 
                             stopSelf(startId);
-
-//                            try {
-//                                piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
-//                            } catch (PendingIntent.CanceledException e) {
-//                                e.printStackTrace();
-//                            } finally {
-//                                stopSelf(startId);
-//                            }
 
                             return;
 
@@ -402,14 +373,6 @@ public class SetGuardStatusService
 
                             stopSelf(startId);
 
-//                            try {
-//                                piRequest.send(FragmentObjects.GUARD_STATUS_AUTH_ERROR);
-//                            } catch (PendingIntent.CanceledException e) {
-//                                e.printStackTrace();
-//                            } finally {
-//                                stopSelf(startId);
-//                            }
-
                             return;
 
                         }
@@ -428,14 +391,6 @@ public class SetGuardStatusService
 
                             stopSelf(startId);
 
-//                            try {
-//                                piRequest.send(FragmentObjects.GUARD_STATUS_CLEAR_FILE);
-//                            } catch (PendingIntent.CanceledException e) {
-//                                e.printStackTrace();
-//                            } finally {
-//                                stopSelf(startId);
-//                            }
-
                             return;
 
                         }
@@ -453,14 +408,6 @@ public class SetGuardStatusService
                             sendBroadcast(intent);
 
                             stopSelf(startId);
-
-//                            try {
-//                                piRequest.send(FragmentObjects.GUARD_STATUS_QUERY_ERROR);
-//                            } catch (PendingIntent.CanceledException e) {
-//                                e.printStackTrace();
-//                            } finally {
-//                                stopSelf(startId);
-//                            }
 
                             return;
 
@@ -481,14 +428,6 @@ public class SetGuardStatusService
 
                             stopSelf(startId);
 
-//                            try {
-//                                piRequest.send(FragmentObjects.GUARD_STATUS_OFF);
-//                            } catch (PendingIntent.CanceledException e) {
-//                                e.printStackTrace();
-//                            } finally {
-//                                stopSelf(startId);
-//                            }
-
                             return;
 
                         }
@@ -506,14 +445,6 @@ public class SetGuardStatusService
                             sendBroadcast(intent);
 
                             stopSelf(startId);
-
-//                            try {
-//                                piRequest.send(FragmentObjects.GUARD_STATUS_ON);
-//                            } catch (PendingIntent.CanceledException e) {
-//                                e.printStackTrace();
-//                            } finally {
-//                                stopSelf(startId);
-//                            }
 
                             return;
                         }
@@ -533,24 +464,13 @@ public class SetGuardStatusService
                     sendBroadcast(intent);
 
                     // отправляем на сервер команду очистки файла запросов
-                    out.println("setObjectStatus:" + objectToSetGuard + ":0:" + deviceId);
+                    out.println("setObjectStatus:" + objectNumber + ":0:" + deviceId + ":" + getResources().getString(R.string.version_short));
                     out.flush();
 
                     disconnect();
                     timer.cancel();
 
                     stopSelf(startId);
-
-//                    try {
-//                        piRequest.send(FragmentObjects.GUARD_STATUS_ERROR);
-//                    } catch (PendingIntent.CanceledException e) {
-//                        e.printStackTrace();
-//                    } finally {
-//                        stopSelf(startId);
-//                    }
-
-
-
 
                     return;
 
@@ -566,7 +486,7 @@ public class SetGuardStatusService
 
             // если соединения с интернетом нет, ставим метку в БД
             else {
-                setStatusToDb(db, FragmentObjects.GUARD_STATUS_NO_INTERNET, objectToSetGuard, DbHelper.DB_TABLE_GUARD);
+                setStatusToDb(db, FragmentObjects.GUARD_STATUS_NO_INTERNET, objectNumber, DbHelper.DB_TABLE_GUARD);
                 dbHelper.close();
                 timer.cancel();
 
@@ -574,14 +494,6 @@ public class SetGuardStatusService
                 sendBroadcast(intent);
 
                 stopSelf(startId);
-
-//                try {
-//                    piRequest.send(FragmentObjects.GUARD_STATUS_NO_INTERNET);
-//                } catch (PendingIntent.CanceledException e) {
-//                    e.printStackTrace();
-//                } finally {
-//                    stopSelf(startId);
-//                }
 
             }
 

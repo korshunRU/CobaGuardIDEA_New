@@ -1,7 +1,8 @@
 <resources>
 
     <string name="app_name">COBA GUARD</string>
-    <string name="version">version 4.2.1; &#169; COBA 2015</string>
+    <string name="version">version 4.2.3; &#169; COBA 2015</string>
+    <string name="version_short">4.2.3</string>
 
     <string name="img_content_desc">img</string>
 
@@ -62,8 +63,12 @@
     <string name="dialog_object_dwnl_title">Объект для загрузки</string>
     <string name="guard_off_button">Снять</string>
     <string name="err_data_object_number">Некорректный номер объекта</string>
+
+    <string name="double_query_error">Дождитесь исполнения предыдущего запроса!</string>
+
     <string name="signals_status_complite">Файл получен</string>
     <string name="signals_status_wait">Ожидание загрузки …</string>
+
     <string name="status_auth_error">Ошибка авторизации на сервере</string>
 
     <string name="guard_off_text">Объект снят с охраны</string>

@@ -315,13 +315,13 @@ public class UpdatePassportsService
 
 
         if (objectNumber > 0) {
-            out.println("getObjectFiles:" + objectNumber + ":" + deviceId);
+            out.println("getObjectFiles:" + objectNumber + ":" + deviceId + ":" + getResources().getString(R.string.version));
         }
 
 
 
         else {
-            out.println("getNewFiles:" + lastUpdatedDate + ":" + deviceId);
+            out.println("getNewFiles:" + lastUpdatedDate + ":" + deviceId + ":" + getResources().getString(R.string.version));
         }
 
 

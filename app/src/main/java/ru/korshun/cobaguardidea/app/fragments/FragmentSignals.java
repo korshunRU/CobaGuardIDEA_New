@@ -38,6 +38,7 @@ import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.GetSignalsService;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.RootActivity;
+import ru.korshun.cobaguardidea.app.SetGuardStatusService;
 import ru.korshun.cobaguardidea.app.Settings;
 import ru.korshun.cobaguardidea.app.StartActivity;
 
@@ -102,9 +103,14 @@ public class FragmentSignals
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                storeObjectQuery(objectNumberEditText.getText().toString());
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                if (readItemsFromDb() > 0 && Functions.isServiceRunning(GetSignalsService.class, getActivity())) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.double_query_error), Toast.LENGTH_LONG).show();
+                }
+                else {
+                    storeObjectQuery(objectNumberEditText.getText().toString());
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
             }
         });
 
@@ -160,11 +166,17 @@ public class FragmentSignals
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 TextView objectNumber =                     (TextView) view.findViewById(R.id.signals_item_object_number);
-                TextView status =                           (TextView) view.findViewById(R.id.signals_item_hide_status);
+//                TextView status =                           (TextView) view.findViewById(R.id.signals_item_hide_status);
 
-                if(Integer.parseInt(status.getText().toString()) != SIGNALS_STATUS_WAIT &&
-                        Functions.isInteger(objectNumber.getText().toString())) {
+                // При долгом клике запускам запрос файла на объект, если:
+                // - в БД нет записей со статусом "ожидание"
+                // - в БД есть записи со статусом "ожидание", но сервис не запущен
+                if((readItemsFromDb() == 0 && Functions.isInteger(objectNumber.getText().toString())) ||
+                        (readItemsFromDb() > 0 && Functions.isInteger(objectNumber.getText().toString()) && !Functions.isServiceRunning(GetSignalsService.class, getActivity()))) {
                     storeObjectQuery(objectNumber.getText().toString());
+                }
+                else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.double_query_error), Toast.LENGTH_LONG).show();
                 }
 
                 return true;
@@ -181,7 +193,12 @@ public class FragmentSignals
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                readItemsFromDb();
+                if(readItemsFromDb() == 0 ||
+                        (readItemsFromDb() > 0 && !Functions.isServiceRunning(GetSignalsService.class, getActivity()))) {
+                    objectNumberEditText.setEnabled(true);
+                    objectNumberEditText.setText("");
+                    sendButton.setEnabled(true);
+                }
 
             }
         };
@@ -209,6 +226,7 @@ public class FragmentSignals
             writeItemToDb(objectNumber);
             createService(Integer.parseInt(objectNumber));
             objectNumberEditText.setText("");
+            objectNumberEditText.setEnabled(false);
             sendButton.setEnabled(false);
             readItemsFromDb();
         }
@@ -251,7 +269,10 @@ public class FragmentSignals
     /**
      *  Функция считывает данные из БД, формирует коллекцию и передает ее в функцию createListView()
      */
-    private void readItemsFromDb() {
+    private int readItemsFromDb() {
+
+        int waitItemsCount =                                0;
+
         ArrayList<HashMap<String, Object>> listPassports =  new ArrayList<>();
 
         DbHelper dbHelper =                                 new DbHelper(getActivity(), Settings.DB_NAME, Settings.DB_VERSION);
@@ -280,6 +301,7 @@ public class FragmentSignals
 
                         case SIGNALS_STATUS_WAIT:
                             status =                            getResources().getString(R.string.signals_status_wait);
+                            waitItemsCount++;
                             break;
 
                         case SIGNALS_STATUS_ERROR:
@@ -342,6 +364,7 @@ public class FragmentSignals
 
         setAdapter();
 
+        return waitItemsCount;
     }
 
 

@@ -253,7 +253,7 @@ public class GetSignalsService
                 if(out != null) {
 
                     // отправляем на сервер команду запроса файла
-                    out.println("getSignalFile:" + objectToCheckSignals + ":" + deviceId);
+                    out.println("getSignalFile:" + objectToCheckSignals + ":" + deviceId + ":" + getResources().getString(R.string.version_short));
                     out.flush();
 
                     // читаем ответ сервера

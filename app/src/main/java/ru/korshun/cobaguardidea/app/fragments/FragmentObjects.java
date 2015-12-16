@@ -38,10 +38,12 @@ import java.util.HashMap;
 
 import ru.korshun.cobaguardidea.app.DbHelper;
 import ru.korshun.cobaguardidea.app.Functions;
+import ru.korshun.cobaguardidea.app.GetSignalsService;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.RootActivity;
 import ru.korshun.cobaguardidea.app.SetGuardStatusService;
 import ru.korshun.cobaguardidea.app.Settings;
+import ru.korshun.cobaguardidea.app.UpdatePassportsService;
 
 public class FragmentObjects
         extends Fragment {
@@ -107,12 +109,17 @@ public class FragmentObjects
             @Override
             public void onClick(View v) {
 
-                // запускаем класс для фонового сканирования смс
-                new ScanSms(new ProgressDialog(getActivity()), objectNumberEditText.getText().toString()).execute();
+                if (readItemsFromDb() > 0 && Functions.isServiceRunning(SetGuardStatusService.class, getActivity())) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.double_query_error), Toast.LENGTH_LONG).show();
+                }
 
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                else {
+                    // запускаем класс для фонового сканирования смс
+                    new ScanSms(new ProgressDialog(getActivity()), objectNumberEditText.getText().toString()).execute();
 
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
             }
         });
 
@@ -143,16 +150,17 @@ public class FragmentObjects
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 TextView statusHide =                       (TextView) view.findViewById(R.id.objects_item_hide_status);
-                TextView statusCompliteHide =               (TextView) view.findViewById(R.id.objects_item_hide_status_complite);
+//                TextView statusCompliteHide =               (TextView) view.findViewById(R.id.objects_item_hide_status_complite);
 
                 int statusHideText =                        Integer.parseInt(statusHide.getText().toString());
-                int statusCompliteHideText =                Integer.parseInt(statusCompliteHide.getText().toString());
+//                int statusCompliteHideText =                Integer.parseInt(statusCompliteHide.getText().toString());
 
 //                Toast.makeText(getActivity(), statusCompliteHide.getText().toString(), Toast.LENGTH_LONG).show();
 
 
                 // если в данный момент не идет никаких запросов - проверяем статус
-                if(statusCompliteHideText != GUARD_STATUS_WAIT) {
+                if(readItemsFromDb() == 0 ||
+                        (readItemsFromDb() > 0 && !Functions.isServiceRunning(SetGuardStatusService.class, getActivity()))) {
 
                     // если в скрытом поле переменная, указывающая на то, что объект без охраны -
                     // отправляем запрос на постановку
@@ -171,6 +179,10 @@ public class FragmentObjects
 
                 }
 
+                else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.double_query_error), Toast.LENGTH_LONG).show();
+                }
+
 
                 return false;
             }
@@ -181,7 +193,9 @@ public class FragmentObjects
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                if(readItemsFromDb() == 0) {
+                if(readItemsFromDb() == 0 ||
+                        (readItemsFromDb() > 0 && !Functions.isServiceRunning(SetGuardStatusService.class, getActivity()))) {
+                    sendButton.setEnabled(true);
                     objectNumberEditText.setEnabled(true);
                     objectNumberEditText.setText("");
                 }
@@ -229,36 +243,6 @@ public class FragmentObjects
         }
 
     }
-
-
-
-
-
-
-
-    /**
-     *  Ловим данные, которые прилетели из Activity
-     *  Смотрим на requestCode - это порядковый номер фрагмента:
-     *   0 - фрагмент списка паспортов
-     *   1 - фрагмент сигналов
-     *   2 - фрагмент снятия\постановки объекта
-     *
-     *   Тут ловим requestCode == 2
-     */
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if(requestCode == RootActivity.CODE_REQUEST_OBJECTS) {
-//
-//            if(readItemsFromDb() == 0) {
-//                objectNumberEditText.setEnabled(true);
-//                objectNumberEditText.setText("");
-//            }
-//
-//        }
-//
-//    }
 
 
 
