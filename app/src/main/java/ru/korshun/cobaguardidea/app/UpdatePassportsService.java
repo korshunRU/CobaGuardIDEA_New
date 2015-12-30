@@ -401,6 +401,7 @@ public class UpdatePassportsService
             // СОединение с сервером для скачивания и обработка ошибки соединения
             try {
                 downloadFilesSocket.connect(new InetSocketAddress(InetAddress.getByName(serverIp), Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_PASSPORTS);
+                downloadFilesSocket.setSoTimeout(15000);
             } catch (IOException e) {
                 e.printStackTrace();
 

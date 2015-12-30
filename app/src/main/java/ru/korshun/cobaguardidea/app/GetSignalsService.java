@@ -325,6 +325,7 @@ public class GetSignalsService
 
                             try {
                                 serverFile.connect(new InetSocketAddress(InetAddress.getByName(SERVER_IP), Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_SIGNALS);
+                                serverFile.setSoTimeout(10000);
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 setStatusToDb(db, FragmentSignals.SIGNALS_STATUS_CONNECT_ERROR, objectToCheckSignals, DbHelper.DB_TABLE_SIGNALS);
@@ -359,7 +360,7 @@ public class GetSignalsService
 
                                 while ((count = dis.read(buffer, 0, buffer.length)) != -1) {
 
-                                    totalLength += count;
+                                    totalLength +=              count;
                                     bos.write(buffer, 0, count);
                                     bos.flush();
 
@@ -373,6 +374,8 @@ public class GetSignalsService
                                     }
 
                                     if(totalLength > fileSize) {
+                                        status =                FragmentSignals.SIGNALS_STATUS_ERROR;
+
                                         dosTestConnect.write(0);
                                         dosTestConnect.flush();
                                         break;
@@ -383,6 +386,8 @@ public class GetSignalsService
                             } catch (IOException e) {
                                 e.printStackTrace();
 
+                                status =                        FragmentSignals.SIGNALS_STATUS_ERROR;
+
                                 if(dosTestConnect != null) {
                                     try {
                                         dosTestConnect.write(0);
@@ -391,64 +396,116 @@ public class GetSignalsService
                                         e1.printStackTrace();
                                     }
                                 }
-                                disconnect();
-                                timer.cancel();
 
-                                intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
-                                sendBroadcast(intent);
+//                                disconnect();
+//                                timer.cancel();
+//
+//                                intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
+//                                sendBroadcast(intent);
+//
+//                                stopSelf(startId);
+//
+//                                return;
 
-                                stopSelf(startId);
+//                            } finally {
+//
+//                                if(fos != null) {
+//                                    try {
+//                                        fos.close();
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                if(bos != null) {
+//                                    try {
+//                                        bos.close();
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                if(dis != null) {
+//                                    try {
+//                                        dis.close();
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                if(dosTestConnect != null) {
+//                                    try {
+//                                        dosTestConnect.close();
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//
+//                                try {
+//                                    serverFile.close();
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//
+//                                setStatusToDb(db, status, objectNumber, DbHelper.DB_TABLE_SIGNALS);
+//                                dbHelper.close();
+//                                disconnect();
+//                                timer.cancel();
+//
+//                                intent.putExtra(FragmentSignals.PI_STATUS, status);
+//                                sendBroadcast(intent);
+//
+//                                stopSelf(startId);
 
-                                return;
+                            }
 
-                            } finally {
-
-                                if(fos != null) {
-                                    try {
-                                        fos.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                if(bos != null) {
-                                    try {
-                                        bos.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                if(dis != null) {
-                                    try {
-                                        dis.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                if(dosTestConnect != null) {
-                                    try {
-                                        dosTestConnect.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
+                            if(fos != null) {
                                 try {
-                                    serverFile.close();
+                                    fos.close();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-
-                                setStatusToDb(db, status, objectNumber, DbHelper.DB_TABLE_SIGNALS);
-                                dbHelper.close();
-                                disconnect();
-                                timer.cancel();
-
-                                intent.putExtra(FragmentSignals.PI_STATUS, status);
-                                sendBroadcast(intent);
-
-                                stopSelf(startId);
-
                             }
+                            if(bos != null) {
+                                try {
+                                    bos.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if(dis != null) {
+                                try {
+                                    dis.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if(dosTestConnect != null) {
+                                try {
+                                    dosTestConnect.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            try {
+                                serverFile.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            setStatusToDb(db, status, objectNumber, DbHelper.DB_TABLE_SIGNALS);
+                            dbHelper.close();
+                            disconnect();
+                            timer.cancel();
+
+                            intent.putExtra(FragmentSignals.PI_STATUS, status);
+                            sendBroadcast(intent);
+
+                            stopSelf(startId);
+
+
+
+
+
+
 
                         }
 

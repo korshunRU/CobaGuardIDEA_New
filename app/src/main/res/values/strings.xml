@@ -1,8 +1,8 @@
 <resources>
 
     <string name="app_name">COBA GUARD</string>
-    <string name="version">version 4.2.3; &#169; COBA 2015</string>
-    <string name="version_short">4.2.3</string>
+    <string name="version">version 4.2.4; &#169; COBA 2015</string>
+    <string name="version_short">4.2.4</string>
 
     <string name="img_content_desc">img</string>
 

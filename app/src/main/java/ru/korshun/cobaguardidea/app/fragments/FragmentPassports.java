@@ -325,7 +325,7 @@ public class FragmentPassports
 
                     final File[] listFiles =                                    new File(passportsPath).listFiles(filenameFilter);
 
-                    if (listFiles.length > 0) {
+                    if (listFiles != null && listFiles.length > 0) {
 
                         for (File cobaFile : listFiles) {
 

@@ -29,17 +29,12 @@ public class SetGuardStatusService
         extends MyServiceSignalsAndGuard {
 
 
-    private int                     objectToSetGuard;
-    private String                  objectGuardStatus =                         "0";
-
-//    private final String            SERVER_IP =                                 "192.168.43.138";
-//    private final String            SERVER_IP =                                 Settings.SERVERS_IP_ARRAY[0];
-//    private final String            SERVER_IP =                                 Settings.SERVERS_IP_ARRAY[3]; "192.168.43.138" 85.12.240.55
 
 
     private Socket                  connectSocket;
     private PrintWriter             out =                                       null;
     private BufferedReader          in =                                        null;
+
 
 
     /**
@@ -56,10 +51,12 @@ public class SetGuardStatusService
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        System.out.println("myapp : onStartCommand");
+
+        int objectToSetGuard;
+        String objectGuardStatus =                      "0";
 
         if(intent != null) {
-//            piRequest =                                 intent.getParcelableExtra(RootActivity.PI_REQUEST);
+
             objectToSetGuard =                          intent.getIntExtra(FragmentObjects.OBJECT_TO_SET_GUARD, 0);
             this.intent =                               new Intent(FragmentObjects.BROADCAST_ACTION);
 
@@ -78,8 +75,6 @@ public class SetGuardStatusService
                     break;
 
             }
-
-
 
             Timer timer =                               new Timer();
             ScheduledCheckGuardAnswer st =              new ScheduledCheckGuardAnswer(objectToSetGuard, objectGuardStatus, timer, startId);
