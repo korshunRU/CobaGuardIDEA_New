@@ -2,7 +2,6 @@ package ru.korshun.cobaguardidea.app.fragments;
 
 
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,12 +37,10 @@ import java.util.HashMap;
 
 import ru.korshun.cobaguardidea.app.DbHelper;
 import ru.korshun.cobaguardidea.app.Functions;
-import ru.korshun.cobaguardidea.app.GetSignalsService;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.RootActivity;
 import ru.korshun.cobaguardidea.app.SetGuardStatusService;
 import ru.korshun.cobaguardidea.app.Settings;
-import ru.korshun.cobaguardidea.app.UpdatePassportsService;
 
 public class FragmentObjects
         extends Fragment {
@@ -546,7 +543,7 @@ public class FragmentObjects
                     String body =                   cursor.getString(cursor.getColumnIndexOrThrow("body"));
                     Long timeDifference =           (Calendar.getInstance().getTimeInMillis() - cursor.getLong(cursor.getColumnIndexOrThrow("date"))) / 1000;
 
-                    if(from.equals(SENDER_SMS_NUMBER) &&
+                    if((from.equals(SENDER_SMS_NUMBER) || from.equals(Settings.SMS_NUMBER_VIDOK)) &&
                             timeDifference <= Settings.SMS_LIFE_TIME_SERVICE &&
                             Functions.isInteger(Functions.getFirstWordInString(body)) &&
                             Functions.getFirstWordInString(body).equals(objectNumber)) {

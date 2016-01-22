@@ -501,12 +501,6 @@ public class GetSignalsService
 
                             stopSelf(startId);
 
-
-
-
-
-
-
                         }
 
                     }

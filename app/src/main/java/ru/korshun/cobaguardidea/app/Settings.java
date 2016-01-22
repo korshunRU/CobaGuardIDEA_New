@@ -1,11 +1,10 @@
 package ru.korshun.cobaguardidea.app;
 
+
 import java.io.File;
 import java.util.regex.Pattern;
 
-/**
- * Created by user on 10.04.2015.
- */
+
 public final class Settings {
 
 
@@ -32,21 +31,21 @@ public final class Settings {
                                                                 "ru.korshun.cobaguardidea.app" + File.separator +
                                                                 "coba_db";
 
-    public static final String PREFERENCES_FILE_NAME =          "cobaGuardPref";
+//    public static final String PREFERENCES_FILE_NAME =          "cobaGuardPref";
 
 //    public static final String LAST_UPDATED_DATE =              "lastUpdatedDate";
 
-    public static final String SERVER_IP =                      "serverIp";
+//    public static final String SERVER_IP =                      "serverIp";
 
-    public static final String SMS_NUMBER =                     "smsNumber";
+//    public static final String SMS_NUMBER =                     "smsNumber";
 
-    public static final String PASSPORTS_DIR =                  "passportsDir";
+//    public static final String PASSPORTS_DIR =                  "passportsDir";
 
-    public static final String CHANGE_GUARD_INFO =              "changeGuardInfo";
+//    public static final String CHANGE_GUARD_INFO =              "changeGuardInfo";
 
     public static final String PD_TITLE =                       "COBA GUARD";
 
-    public static final String LOG_TAG =                        "myLog";
+//    public static final String LOG_TAG =                        "myLog";
 
     public static final String OBJECT_PART_DIVIDER =            "-";
 
@@ -61,6 +60,8 @@ public final class Settings {
 
     public static final String[] SMS_NUMBERS_ARRAY =            new String[]{"COBA",            "+79049820133"};
     public static final String[] SMS_NUMBERS_ARRAY_LEGEND =     new String[]{"ГБР",             "Сервис"};
+
+    public static final String SMS_NUMBER_VIDOK =               "+79126976842";
 
 //    public static final String CHANGE_GUARD_NUMBER =            "InternetSMS";
 //    public static final String CHANGE_GUARD_NUMBER =            "+79122271554";

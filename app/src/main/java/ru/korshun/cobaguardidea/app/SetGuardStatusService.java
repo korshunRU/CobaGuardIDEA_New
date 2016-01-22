@@ -138,12 +138,6 @@ public class SetGuardStatusService
             intent.putExtra(FragmentObjects.PI_STATUS, FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
             sendBroadcast(intent);
 
-//            try {
-//                piRequest.send(FragmentObjects.GUARD_STATUS_CONNECT_ERROR);
-//            } catch (PendingIntent.CanceledException e1) {
-//                e1.printStackTrace();
-//            }
-
             return false;
         }
 
