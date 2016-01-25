@@ -27,10 +27,12 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 
 import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.ImgCryptoDecoder;
+import ru.korshun.cobaguardidea.app.MapActivity;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.RootActivity;
 import ru.korshun.cobaguardidea.app.Settings;
@@ -55,6 +57,10 @@ public class FragmentPassports
     private ImgCryptoDecoder                    decoder;
 
     private String                              tempPassportsPath;
+
+    private HashMap<String, String>             objectAddressMap =              null;
+
+    private final String                        OBJECT_ADDRESS_MAP_INTENT_KEY = "objectAddressMapKey";
 
 //    private MediaScannerConnection  mediaScannerConnection =            null;
 
@@ -130,15 +136,33 @@ public class FragmentPassports
             @Override
             public void onClick(View view) {
 
-                System.out.println("myLog " + listPassports.getCount());
+                if(!Functions.isNetworkAvailable(getActivity().getBaseContext())) {
+                    Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+                }
 
-                if(listPassports.getCount() == 0) {
+                else if(listPassports.getCount() == 0) {
                     Toast.makeText(getContext(), R.string.open_map_error, Toast.LENGTH_LONG).show();
                 }
 
-                else {
-                    Toast.makeText(getContext(), "OK", Toast.LENGTH_LONG).show();
+                else if(objectAddressMap == null) {
+                    Toast.makeText(getContext(), R.string.address_map_error, Toast.LENGTH_LONG).show();
                 }
+
+                else {
+                    Intent intent =                                     new Intent(getActivity().getApplicationContext(), MapActivity.class);
+                    intent.putExtra(OBJECT_ADDRESS_MAP_INTENT_KEY, objectAddressMap);
+                    startActivity(intent);
+                }
+
+//                System.out.println("myLog " + listPassports.getCount());
+//
+//                if(listPassports.getCount() == 0) {
+//                    Toast.makeText(getContext(), R.string.open_map_error, Toast.LENGTH_LONG).show();
+//                }
+//
+//                else {
+//                    Toast.makeText(getContext(), "OK", Toast.LENGTH_LONG).show();
+//                }
 
             }
         });
@@ -160,6 +184,7 @@ public class FragmentPassports
         fabPassportsRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                objectAddressMap =                                      null;
                 new UpdateListView(new ProgressDialog(getActivity())).execute();
             }
         });
@@ -264,7 +289,7 @@ public class FragmentPassports
      */
     private void setAdapter() {
         listPassports.setAdapter(RootActivity.passportsListAdapter);
-        ((SimpleAdapter)listPassports.getAdapter()).notifyDataSetChanged();
+        ((SimpleAdapter) listPassports.getAdapter()).notifyDataSetChanged();
         listPassports.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
 
@@ -415,8 +440,6 @@ public class FragmentPassports
                                         filesToDecode = "";
                                     }
 
-                                    listPassportItem = new HashMap<>();
-
 //                                    int startDivider = cobaFile.getName().indexOf(Settings.OBJECT_PART_DIVIDER);
 //                                    int finishDivider = cobaFile.getName().lastIndexOf(".");
 
@@ -438,6 +461,11 @@ public class FragmentPassports
                         }
 
                         if (objectNumber != null) {
+
+                            listPassportItem = new HashMap<>();
+                            objectAddressMap = new HashMap<>();
+
+                            objectAddressMap.put(objectNumber, objectAddress);
 
                             listPassportItem.put("img", R.mipmap.ic_passports_item_ico);
                             listPassportItem.put("objectNumber", objectNumber);

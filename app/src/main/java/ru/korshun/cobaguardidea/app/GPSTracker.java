@@ -28,7 +28,7 @@ public class GPSTracker
     private boolean isNetworkEnabled = false;
 
     // Flag for GPS status
-    private boolean canGetLocation = false;
+//    private boolean canGetLocation = false;
 
     private Location location; // Location
     private double latitude; // Latitude
@@ -69,14 +69,13 @@ public class GPSTracker
                 // No network provider is enabled
             }
             else {
-                this.canGetLocation = true;
+//                this.canGetLocation = true;
                 if (isNetworkEnabled) {
 
                     locationManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.d("Network", "Network");
                     if (locationManager != null) {
                         location = locationManager
                                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -93,7 +92,6 @@ public class GPSTracker
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("GPS Enabled", "GPS Enabled");
                         if (locationManager != null) {
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);

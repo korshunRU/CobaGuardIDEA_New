@@ -64,7 +64,11 @@ public class MapActivity
 
         if(myLatitude > 0 && myLongitude > 0) {
             LatLng my = new LatLng(myLatitude, myLongitude);
-            Marker marker1 = mMap.addMarker(new MarkerOptions().position(my).title("Вы тут").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            Marker marker1 = mMap.addMarker(
+                    new MarkerOptions()
+                            .position(my)
+                            .title(getString(R.string.me_marker_title))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
             marker1.showInfoWindow();
 

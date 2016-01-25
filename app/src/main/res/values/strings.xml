@@ -87,5 +87,7 @@
     <string name="pref_view_version_title">Версия программы</string>
 
     <string name="open_map_error">Загрузите паспорта</string>
+    <string name="address_map_error">Ошибка списка адресов</string>
+    <string name="me_marker_title">Вы тут</string>
 
 </resources>
