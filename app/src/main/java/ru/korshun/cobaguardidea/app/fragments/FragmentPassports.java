@@ -1,7 +1,9 @@
 package ru.korshun.cobaguardidea.app.fragments;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,13 +14,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -52,6 +54,10 @@ public class FragmentPassports
 
     private ImgCryptoDecoder                    decoder;
 
+    private String                              tempPassportsPath;
+
+//    private MediaScannerConnection  mediaScannerConnection =            null;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,10 +77,10 @@ public class FragmentPassports
 
 
         passportsPath =                                                         Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null);
-        final String tempPassportsPath =                                        Boot.sharedPreferences.getString(StartActivity.TEMP_PASSPORTS_DIR_KEY, null);
+        tempPassportsPath =                                                     Boot.sharedPreferences.getString(StartActivity.TEMP_PASSPORTS_DIR_KEY, null);
 
         FloatingActionButton fabPassportsRefresh =                              (FloatingActionButton) v.findViewById(R.id.fab_passports_refresh);
-        FloatingActionButton fabPassportsUpdate =                               (FloatingActionButton) v.findViewById(R.id.fab_passports_update);
+        FloatingActionButton fabMapOpen =                                       (FloatingActionButton) v.findViewById(R.id.fab_map_open);
         FloatingActionButton fabPassportsInfo =                                 (FloatingActionButton) v.findViewById(R.id.fab_passports_info);
 
         listPassports =                                                         (ListView) v.findViewById(R.id.list_passports);
@@ -119,15 +125,20 @@ public class FragmentPassports
         }
 
 
-        // Переход на страницу обновления паспортов
-        fabPassportsUpdate.setOnClickListener(new View.OnClickListener() {
+        // Переход на страницу с картой
+        fabMapOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                MenuItem updateItem =                                           rootActivity.getMenuItemFromTitle(getResources().getString(R.string.nav_drawer_passports_update_item));
+                System.out.println("myLog " + listPassports.getCount());
 
-                updateItem.setChecked(true);
-                rootActivity.onNavigationItemSelected(updateItem);
+                if(listPassports.getCount() == 0) {
+                    Toast.makeText(getContext(), R.string.open_map_error, Toast.LENGTH_LONG).show();
+                }
+
+                else {
+                    Toast.makeText(getContext(), "OK", Toast.LENGTH_LONG).show();
+                }
 
             }
         });
@@ -155,20 +166,26 @@ public class FragmentPassports
 
 
 
+
+//        listPassports.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//                Toast.makeText(getActivity(), "dfsfd", Toast.LENGTH_LONG).show();
+//
+//                return true;
+//            }
+//        });
+
+
+
         // Открытие файла в галлерее
         listPassports.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Intent intent = new Intent();
                 TextView tv = (TextView) view.findViewById(R.id.passports_item_hide);
 
-                decoder.setImgName(tv.getText().toString());
-                decoder.decodeFile();
-
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file://" + tempPassportsPath + File.separator + tv.getText()), "image/*");
-
-                startActivity(intent);
+                showSelectFileDialog(getFilesToDecodeArray(tv));
 
             }
         });
@@ -182,6 +199,61 @@ public class FragmentPassports
         return v;
     }
 
+
+
+
+
+    /**
+     *  Создание и отображение модального диалога для выбора файла для открытия в галлерее
+     * @param filesArray                    - массив из файлов паспортов на объект
+     */
+    private void showSelectFileDialog(final String[] filesArray) {
+
+        new AlertDialog.Builder(getActivity())
+                .setItems(filesArray, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent =                                 new Intent();
+
+                        decoder.setImgName(filesArray[which]);
+                        decoder.decodeFile();
+
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.parse("file://" + tempPassportsPath + File.separator + filesArray[which]), "image/*");
+
+                        startActivity(intent);
+                    }
+                })
+                .create()
+                .show();
+
+    }
+
+
+
+
+
+
+    /**
+     *  Функция возвращает строку со списком файлов, которая записана в скрытом поле каждого
+     *  Item в ListView в виде массива
+     * @param tv                - ссылка на TextView
+     * @return                  - возвращается массив String[]
+     */
+    private String[] getFilesToDecodeArray(TextView tv) {
+
+        String hideFilesString =                                        tv.getText().toString();
+        String[] filesToDecodeArray =                                   new String[] { "" };
+
+        if(hideFilesString.length() > 0) {
+            filesToDecodeArray =                                        (hideFilesString.contains("#")) ?
+                                                                            hideFilesString.split("#") :
+                                                                            new String[] { hideFilesString };
+        }
+
+        return filesToDecodeArray;
+
+    }
 
 
 
@@ -304,10 +376,6 @@ public class FragmentPassports
 
             ArrayList<HashMap<String, Object>> listPassports =                  new ArrayList<>();
 
-//            if(passportsPath == null) {
-//                return;
-//            }
-
             if(listIncomingSms.size() > 0) {
 
                 for (final String smsBody : listIncomingSms) {
@@ -327,32 +395,56 @@ public class FragmentPassports
 
                     if (listFiles != null && listFiles.length > 0) {
 
+                        HashMap<String, Object> listPassportItem =              null;
+                        String objectNumber = null, objectAddress = null, filesToDecode = null;
+
                         for (File cobaFile : listFiles) {
 
                             if (cobaFile.isFile()) {
 
-                                String objectNumber =                           objectEquals(listIncomingSms, cobaFile.getName());
-                                String objectAddress =                          getAddressFromSms(smsBody);
+                                objectNumber = objectEquals(listIncomingSms, cobaFile.getName());
+                                objectAddress = getAddressFromSms(smsBody);
 
                                 if (objectNumber != null) {
 
-                                    HashMap<String, Object> listPassportItem =  new HashMap<>();
+                                    if(filesToDecode != null) {
+                                        filesToDecode += "#";
+                                    }
 
-                                    int startDivider =                          cobaFile.getName().indexOf(Settings.OBJECT_PART_DIVIDER);
-                                    int finishDivider =                         cobaFile.getName().lastIndexOf(".");
+                                    else {
+                                        filesToDecode = "";
+                                    }
 
-                                    String fileNameIndex =                      cobaFile.getName().substring(startDivider, finishDivider);
+                                    listPassportItem = new HashMap<>();
 
-                                    listPassportItem.put("img",                 R.mipmap.ic_passports_item_ico);
-                                    listPassportItem.put("objectNumber",        objectNumber + fileNameIndex);
-                                    listPassportItem.put("objectAddress",       objectAddress);
-                                    listPassportItem.put("fileName",            cobaFile.getName());
+//                                    int startDivider = cobaFile.getName().indexOf(Settings.OBJECT_PART_DIVIDER);
+//                                    int finishDivider = cobaFile.getName().lastIndexOf(".");
 
-                                    listPassports.add(listPassportItem);
+//                                    fileNameIndex = cobaFile.getName().substring(startDivider, finishDivider);
+
+                                    filesToDecode += cobaFile.getName();
+
+//                                    listPassportItem.put("img",                 R.mipmap.ic_passports_item_ico);
+//                                    listPassportItem.put("objectNumber",        objectNumber + fileNameIndex);
+//                                    listPassportItem.put("objectAddress",       objectAddress);
+//                                    listPassportItem.put("fileName",            cobaFile.getName());
+//
+//                                    listPassports.add(listPassportItem);
 
                                 }
 
                             }
+
+                        }
+
+                        if (objectNumber != null) {
+
+                            listPassportItem.put("img", R.mipmap.ic_passports_item_ico);
+                            listPassportItem.put("objectNumber", objectNumber);
+                            listPassportItem.put("objectAddress", objectAddress);
+                            listPassportItem.put("fileName", filesToDecode);
+
+                            listPassports.add(listPassportItem);
 
                         }
 

@@ -23,13 +23,13 @@
         android:src="@drawable/ic_passports_refresh" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_passports_update"
+        android:id="@+id/fab_map_open"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="84dp"
         android:layout_marginBottom="16dp"
-        android:src="@drawable/ic_passports_update" />
+        android:src="@drawable/ic_map_open" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_passports_info"

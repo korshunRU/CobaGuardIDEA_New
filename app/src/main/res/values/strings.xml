@@ -86,4 +86,6 @@
     <string name="passports_update_find_title">Поиск файлов</string>
     <string name="pref_view_version_title">Версия программы</string>
 
+    <string name="open_map_error">Загрузите паспорта</string>
+
 </resources>

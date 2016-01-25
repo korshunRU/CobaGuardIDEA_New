@@ -34,6 +34,14 @@ public class ImgCryptoDecoder {
         return imgTempPath;
     }
 
+//    public void clearTempDir() {
+//        for (File f: new File(getImgTempPath()).listFiles()) {
+//            if (f.isFile()) {
+//                f.delete();
+//            }
+//        }
+//    }
+
     public void decodeFile() {
             for (File f: new File(getImgTempPath()).listFiles()) {
                 if (f.isFile()) {
