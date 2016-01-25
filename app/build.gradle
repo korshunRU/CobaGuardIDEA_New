@@ -18,9 +18,9 @@ android {
     defaultConfig {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
-        targetSdkVersion 23
-        versionCode 20
-        versionName "4.2.5"
+        targetSdkVersion 22
+        versionCode 21
+        versionName "5.0.0"
     }
 
     buildTypes {
@@ -38,4 +38,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
+    compile 'com.google.android.gms:play-services:8.4.0'
 }
