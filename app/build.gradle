@@ -18,8 +18,8 @@ android {
     defaultConfig {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
-        targetSdkVersion 22
-        versionCode 21
+        targetSdkVersion 23
+        versionCode 24
         versionName "5.0.0"
     }
 

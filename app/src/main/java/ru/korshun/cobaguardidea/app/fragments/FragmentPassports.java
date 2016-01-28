@@ -20,14 +20,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
 
 import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.Functions;
@@ -43,7 +41,9 @@ import ru.korshun.cobaguardidea.app.StartActivity;
 public class FragmentPassports
         extends Fragment {
 
-
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String                        READ_UPDATE_MSG_KEY =           "pref_read_update_msg";
+    private final int                           READ_UPDATE_MSG_ID =            1;
 
     public RootActivity                         rootActivity;
 
@@ -58,9 +58,9 @@ public class FragmentPassports
 
     private String                              tempPassportsPath;
 
-    private HashMap<String, String>             objectAddressMap =              null;
+//    private HashMap<String, String>             objectAddressMap =              null;
 
-    private final String                        OBJECT_ADDRESS_MAP_INTENT_KEY = "objectAddressMapKey";
+    public final static String                  OBJECT_ADDRESS_MAP_INTENT_KEY = "objectAddressMapKey";
 
 //    private MediaScannerConnection  mediaScannerConnection =            null;
 
@@ -81,6 +81,7 @@ public class FragmentPassports
 
         View v =                                                                inflater.inflate(R.layout.fragment_passports, container, false);
 
+        int lastReadId =                                                        Boot.sharedPreferences.getInt(READ_UPDATE_MSG_KEY, 0);
 
         passportsPath =                                                         Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null);
         tempPassportsPath =                                                     Boot.sharedPreferences.getString(StartActivity.TEMP_PASSPORTS_DIR_KEY, null);
@@ -137,32 +138,24 @@ public class FragmentPassports
             public void onClick(View view) {
 
                 if(!Functions.isNetworkAvailable(getActivity().getBaseContext())) {
-                    Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+                    Snackbar
+                            .make(view, R.string.no_internet, Snackbar.LENGTH_LONG)
+                            .show();
+//                    Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_LONG).show();
                 }
 
                 else if(listPassports.getCount() == 0) {
-                    Toast.makeText(getContext(), R.string.open_map_error, Toast.LENGTH_LONG).show();
-                }
-
-                else if(objectAddressMap == null) {
-                    Toast.makeText(getContext(), R.string.address_map_error, Toast.LENGTH_LONG).show();
+                    Snackbar
+                            .make(view, R.string.open_map_error, Snackbar.LENGTH_LONG)
+                            .show();
+//                    Toast.makeText(getContext(), R.string.open_map_error, Toast.LENGTH_LONG).show();
                 }
 
                 else {
                     Intent intent =                                     new Intent(getActivity().getApplicationContext(), MapActivity.class);
-                    intent.putExtra(OBJECT_ADDRESS_MAP_INTENT_KEY, objectAddressMap);
+                    intent.putExtra(OBJECT_ADDRESS_MAP_INTENT_KEY, getObjectAddressMap());
                     startActivity(intent);
                 }
-
-//                System.out.println("myLog " + listPassports.getCount());
-//
-//                if(listPassports.getCount() == 0) {
-//                    Toast.makeText(getContext(), R.string.open_map_error, Toast.LENGTH_LONG).show();
-//                }
-//
-//                else {
-//                    Toast.makeText(getContext(), "OK", Toast.LENGTH_LONG).show();
-//                }
 
             }
         });
@@ -184,7 +177,6 @@ public class FragmentPassports
         fabPassportsRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                objectAddressMap =                                      null;
                 new UpdateListView(new ProgressDialog(getActivity())).execute();
             }
         });
@@ -221,10 +213,71 @@ public class FragmentPassports
             setAdapter();
         }
 
+
+        if(lastReadId != READ_UPDATE_MSG_ID) {
+            showUpdateMessageDialog();
+        }
+
+
         return v;
     }
 
 
+    /**
+     *  Создание и отображение диалогового окна с информацией о добавленных опциях и изменениях
+     */
+    private void showUpdateMessageDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder
+                .setTitle(R.string.update_news_dialog_title)
+                .setMessage(R.string.update_news_dialog_text_500)
+                .setPositiveButton(R.string.update_news_dialog_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Boot.sharedPreferences
+                                .edit()
+                                .putInt(READ_UPDATE_MSG_KEY, READ_UPDATE_MSG_ID)
+                                .apply();
+                    }
+                }).create();
+        builder.show();
+
+    }
+
+
+
+
+    /**
+     *  Создание коллекции типа <Объект, Адрес> для передачи в Activity карты для установки меток
+     * @return                      - возвращается коллекция HashMap<String, String>
+     */
+    private HashMap<String, String> getObjectAddressMap() {
+
+        HashMap<String, String> objectAddressMap = null;
+        int listCount = listPassports.getCount();
+
+        if(listCount > 0) {
+
+            objectAddressMap = new HashMap<>();
+
+            for(int x = 0; x < listPassports.getCount(); x++) {
+
+                TextView objectNumber = (TextView)(listPassports.getAdapter().getView(x, null, null))
+                                            .findViewById(R.id.passports_item_object_number);
+                TextView objectAddress = (TextView)(listPassports.getAdapter().getView(x, null, null))
+                                            .findViewById(R.id.passports_item_object_address);
+
+                objectAddressMap.put(objectNumber.getText().toString(), objectAddress.getText().toString());
+
+//                System.out.println("myLog: " + objectNumber.getText().toString() + " " + objectAddress.getText().toString());
+
+            }
+
+        }
+
+        return objectAddressMap;
+    }
 
 
 
@@ -405,6 +458,8 @@ public class FragmentPassports
 
                 for (final String smsBody : listIncomingSms) {
 
+//                    System.out.println("myLog " + smsBody);
+
                     FilenameFilter filenameFilter =                             new FilenameFilter() {
 
                         @Override
@@ -420,33 +475,42 @@ public class FragmentPassports
 
                     if (listFiles != null && listFiles.length > 0) {
 
-                        HashMap<String, Object> listPassportItem =              null;
+                        HashMap<String, Object> listPassportItem = new HashMap<>();
                         String objectNumber = null, objectAddress = null, filesToDecode = null;
 
                         for (File cobaFile : listFiles) {
 
                             if (cobaFile.isFile()) {
 
-                                objectNumber = objectEquals(listIncomingSms, cobaFile.getName());
-                                objectAddress = getAddressFromSms(smsBody);
+//                                objectNumber = objectEquals(listIncomingSms, cobaFile.getName());
+//                                objectAddress = getAddressFromSms(smsBody);
 
-                                if (objectNumber != null) {
+//                                System.out.println("myLog " + objectNumber + " " + cobaFile.getName() + " " + filesToDecode);
 
-                                    if(filesToDecode != null) {
+                                if (objectEquals(listIncomingSms, cobaFile.getName()) != null) {
+
+                                    objectNumber = objectEquals(listIncomingSms, cobaFile.getName());
+                                    objectAddress = getAddressFromSms(smsBody);
+
+                                    if (filesToDecode != null) {
                                         filesToDecode += "#";
-                                    }
-
-                                    else {
+                                    } else {
                                         filesToDecode = "";
                                     }
+
+                                    filesToDecode += cobaFile.getName();
+
+
+
 
 //                                    int startDivider = cobaFile.getName().indexOf(Settings.OBJECT_PART_DIVIDER);
 //                                    int finishDivider = cobaFile.getName().lastIndexOf(".");
 
 //                                    fileNameIndex = cobaFile.getName().substring(startDivider, finishDivider);
 
-                                    filesToDecode += cobaFile.getName();
 
+
+//                                    System.out.println("myLog " + objectNumber + " " + cobaFile.getName() + " " + filesToDecode);
 //                                    listPassportItem.put("img",                 R.mipmap.ic_passports_item_ico);
 //                                    listPassportItem.put("objectNumber",        objectNumber + fileNameIndex);
 //                                    listPassportItem.put("objectAddress",       objectAddress);
@@ -454,19 +518,25 @@ public class FragmentPassports
 //
 //                                    listPassports.add(listPassportItem);
 
+//                                    listPassportItem = new HashMap<>();
+
+//                                    listPassportItem.put("img", R.mipmap.ic_passports_item_ico);
+//                                    listPassportItem.put("objectNumber", objectNumber);
+//                                    listPassportItem.put("objectAddress", objectAddress);
+//                                    listPassportItem.put("fileName", filesToDecode);
+
                                 }
 
                             }
 
                         }
 
+//                        System.out.println("myLog " + filesToDecode);
+
                         if (objectNumber != null) {
 
-                            listPassportItem = new HashMap<>();
-                            objectAddressMap = new HashMap<>();
-
-                            objectAddressMap.put(objectNumber, objectAddress);
-
+//                            listPassportItem = new HashMap<>();
+//
                             listPassportItem.put("img", R.mipmap.ic_passports_item_ico);
                             listPassportItem.put("objectNumber", objectNumber);
                             listPassportItem.put("objectAddress", objectAddress);
@@ -514,7 +584,8 @@ public class FragmentPassports
          * @param listIncomingSms           - список с смс
          * @param fileName                  - файл, номер объекта из имени которого сравниваем с
          *                                    номером из смс
-         * @return                          - возвращается номер объекта
+         * @return                          - возвращается номер объекта или null в случае, если
+         *                                      совпадения нет
          */
         private String objectEquals(ArrayList<String> listIncomingSms, String fileName) {
 
@@ -548,6 +619,7 @@ public class FragmentPassports
                 }
 
             }
+
             return null;
         }
 

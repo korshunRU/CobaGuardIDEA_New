@@ -14,8 +14,9 @@ public final class Settings {
 //    public static final String SMS_SENDER_NUMBER =              "InternetSMS";
 //    public static final String SMS_SENDER_NUMBER =              "+79049820133";
 
+//    public static final int SMS_LIFE_TIME_SERVICE =             999999999; // в секундах!!!
     public static final int SMS_LIFE_TIME_SERVICE =             36000; // в секундах!!!
-    public static final int SMS_LIFE_TIME_GBR =                 18000; // в секундах!!!
+    public static final int SMS_LIFE_TIME_GBR =                 1800; // в секундах!!!
 
     public static final int PORT =                              6666;
     public static final int PORT_FILE =                         6667;
@@ -58,8 +59,11 @@ public final class Settings {
     public static final String[] SERVERS_IP_ARRAY =             new String[]{"85.12.240.55",    "192.168.0.2",      "192.168.43.138"};
     public static final String[] SERVERS_IP_ARRAY_LEGEND =      new String[]{"Интернет",        "Локальная сеть",   "TEST"};
 
-    public static final String[] SMS_NUMBERS_ARRAY =            new String[]{"COBA",            "+79049820133",     "InternetSMS"};
-    public static final String[] SMS_NUMBERS_ARRAY_LEGEND =     new String[]{"ГБР",             "Сервис",           "TEST"};
+//    public static final String[] SMS_NUMBERS_ARRAY =            new String[]{"COBA",            "+79049820133",     "InternetSMS"};
+//    public static final String[] SMS_NUMBERS_ARRAY_LEGEND =     new String[]{"ГБР",             "Сервис",           "TEST"};
+
+    public static final String[] SMS_NUMBERS_ARRAY =            new String[]{"COBA",            "+79049820133"};
+    public static final String[] SMS_NUMBERS_ARRAY_LEGEND =     new String[]{"ГБР",             "Сервис"};
 
     public static final String SMS_NUMBER_VIDOK =               "+79126976842";
 
@@ -78,5 +82,7 @@ public final class Settings {
     public static final String DB_NAME =                        "COBA_DB";
     public static final int DB_SIGNALS_LIFE_HOURS =             12;
     public static final int DB_GUARD_LIFE_HOURS =               12;
+
+    public static final int GET_SIGNALS_OBJECTS_STORE_COUNT =   3;
 
 }

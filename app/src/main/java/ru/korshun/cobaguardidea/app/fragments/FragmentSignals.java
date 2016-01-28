@@ -14,12 +14,14 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -38,16 +40,17 @@ import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.GetSignalsService;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.RootActivity;
-import ru.korshun.cobaguardidea.app.SetGuardStatusService;
 import ru.korshun.cobaguardidea.app.Settings;
 import ru.korshun.cobaguardidea.app.StartActivity;
 
 public class FragmentSignals
         extends Fragment {
 
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String                                    LAST_OBJECTS_QUERY_KEY =            "pref_last_object_query";
 
-
-    private EditText                                        objectNumberEditText;
+//    private EditText                                        objectNumberEditText;
+    private AutoCompleteTextView                            objectNumberEditText;
     private Button                                          sendButton;
     private ListView                                        signalsList;
 
@@ -71,8 +74,6 @@ public class FragmentSignals
 
 
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +81,15 @@ public class FragmentSignals
         cobaSignalsPath =                                   Boot
                                                                 .sharedPreferences
                                                                 .getString(StartActivity.TEMP_SIGNALS_DIR_KEY, null);
+
+
+//        Boot
+//                .sharedPreferences
+//                .edit()
+//                .putString(LAST_OBJECTS_QUERY_KEY, null)
+//                .apply();
+
+
     }
 
 
@@ -91,11 +101,30 @@ public class FragmentSignals
 
         View v =                                            inflater.inflate(R.layout.fragment_signals, container, false);
 
-        objectNumberEditText =                              (EditText) v.findViewById(R.id.object_signals_edittext);
+//        objectNumberEditText =                              (EditText) v.findViewById(R.id.object_signals_edittext);
+        objectNumberEditText =                              (AutoCompleteTextView) v.findViewById(R.id.object_signals_edittext);
         sendButton =                                        (Button) v.findViewById(R.id.object_signals_send_button);
         signalsList =                                       (ListView) v.findViewById(R.id.list_signals_listView);
 
         intentFilter =                                      new IntentFilter(BROADCAST_ACTION);
+
+        objectNumberEditText.setThreshold(1);
+
+        if(getLastObjectsQuery() != null) {
+            objectNumberEditText.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_item, getLastObjectsQuery()));
+        }
+
+//        for(int x = 1; x <= 10; x++) {
+//
+//            addItemToLastObjectsQuery("100" + x);
+//
+//        }
+//
+//        addItemToLastObjectsQuery("1005");
+//        addItemToLastObjectsQuery("1008");
+//        addItemToLastObjectsQuery("1009");
+//        addItemToLastObjectsQuery("1009");
+//        addItemToLastObjectsQuery("1004");
 
         readItemsFromDb();
 
@@ -114,6 +143,29 @@ public class FragmentSignals
             }
         });
 
+//        String[] items = {"21548", "7585", "16457", "17587"};
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_item, items);
+
+        // Клик в поле ввода объекта - показываем выпадающее меню
+        objectNumberEditText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                objectNumberEditText.showDropDown();
+                return false;
+            }
+        });
+
+
+        // Клик на пункте в выпадающем меню
+        objectNumberEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                storeObjectQuery(objectNumberEditText.getText().toString());
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        });
 
 
         // Ввод текста в поле номера объекта
@@ -140,15 +192,15 @@ public class FragmentSignals
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                TextView status =                           (TextView) view.findViewById(R.id.signals_item_hide_status);
+                TextView status = (TextView) view.findViewById(R.id.signals_item_hide_status);
 
                 // если в скрытом поле стоит статус успешного приема - пытаемся открыть соответствующий файл
-                if(Integer.parseInt(status.getText().toString()) == SIGNALS_STATUS_COMPLITE) {
+                if (Integer.parseInt(status.getText().toString()) == SIGNALS_STATUS_COMPLITE) {
 
-                    TextView object =                       (TextView) view.findViewById(R.id.signals_item_object_number);
-                    String fileName =                       object.getText().toString() + ".xls";
-                    String fileMime =                       URLConnection.guessContentTypeFromName(cobaSignalsPath + File.separator + fileName);
-                    Intent xlsIntent =                      new Intent();
+                    TextView object = (TextView) view.findViewById(R.id.signals_item_object_number);
+                    String fileName = object.getText().toString() + ".xls";
+                    String fileMime = URLConnection.guessContentTypeFromName(cobaSignalsPath + File.separator + fileName);
+                    Intent xlsIntent = new Intent();
 
                     xlsIntent.setAction(Intent.ACTION_VIEW);
                     xlsIntent.setDataAndType(Uri.parse("file://" + cobaSignalsPath + File.separator + fileName), fileMime);
@@ -203,14 +255,113 @@ public class FragmentSignals
             }
         };
 
-
         return v;
     }
 
 
 
 
+    /**
+     *  Получаем из sharedPreferences список последних запрошенных объектов по сигналам
+     * @return                  - возвращается массив типа String
+     */
+    private String[] getLastObjectsQuery() {
+        String[] returnArray =                                          null;
 
+        String prefStr =
+                Boot.sharedPreferences.getString(LAST_OBJECTS_QUERY_KEY, null) == null ?
+                        null :
+                        Boot.sharedPreferences.getString(LAST_OBJECTS_QUERY_KEY, null);
+
+        if(prefStr != null) {
+
+            returnArray = (!prefStr.contains(Settings.OBJECT_PART_DIVIDER)) ?
+                    new String[]{ prefStr } :
+                    prefStr.split(Settings.OBJECT_PART_DIVIDER);
+
+        }
+
+        return returnArray;
+    }
+
+
+
+
+    /**
+     *  Добавление номера в список последних запрашиваемых
+     * @param item              - номер объекта для добавления
+     */
+    private void addItemToLastObjectsQuery(String item) {
+
+        String[] lastObjects =                                          getLastObjectsQuery();
+        String updatedStr =                                             "";
+
+        if(lastObjects != null) {
+
+            if(lastObjects.length >= Settings.GET_SIGNALS_OBJECTS_STORE_COUNT) {
+
+                for(int x = Settings.GET_SIGNALS_OBJECTS_STORE_COUNT; x >= 1; x--) {
+
+//                    System.out.println("myLog " + lastObjects[x - 1]);
+
+                    if(lastObjects[x - 1].equals(item)) {
+                        return;
+                    }
+
+                    if(x > 1) {
+                        updatedStr =                                    Settings.OBJECT_PART_DIVIDER + lastObjects[x - 2] + updatedStr;
+                    }
+                }
+
+                updatedStr =                                            item + updatedStr;
+
+            }
+
+            else if(lastObjects.length == 1) {
+
+                if(lastObjects[0].equals(item)) {
+                    return;
+                }
+
+                updatedStr +=
+                                                                        (item.equals(lastObjects[0])) ?
+                                                                                item :
+                                                                                item + Settings.OBJECT_PART_DIVIDER + lastObjects[0];
+
+            }
+
+            else {
+
+                for(int x = lastObjects.length; x >= 1; x--) {
+
+                    if(lastObjects[x - 1].equals(item)) {
+                        return;
+                    }
+
+                    updatedStr =                                        Settings.OBJECT_PART_DIVIDER + lastObjects[x - 1] + updatedStr;
+
+                }
+
+                updatedStr =                                            item + updatedStr;
+
+            }
+
+        }
+
+        else {
+            updatedStr =                                                item;
+        }
+
+//        System.out.println("myLog: " + updatedStr);
+
+        Boot
+                .sharedPreferences
+                .edit()
+                .putString(LAST_OBJECTS_QUERY_KEY, updatedStr)
+                .apply();
+
+        objectNumberEditText.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_item, getLastObjectsQuery()));
+    }
 
 
 
@@ -225,6 +376,7 @@ public class FragmentSignals
             new File(cobaSignalsPath + File.separator + objectNumber + ".xls").delete();
             writeItemToDb(objectNumber);
             createService(Integer.parseInt(objectNumber));
+            addItemToLastObjectsQuery(objectNumber);
             objectNumberEditText.setText("");
             objectNumberEditText.setEnabled(false);
             sendButton.setEnabled(false);

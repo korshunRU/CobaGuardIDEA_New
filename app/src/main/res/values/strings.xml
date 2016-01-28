@@ -86,8 +86,12 @@
     <string name="passports_update_find_title">Поиск файлов</string>
     <string name="pref_view_version_title">Версия программы</string>
 
-    <string name="open_map_error">Загрузите паспорта</string>
+    <string name="open_map_error">Список пуст</string>
     <string name="address_map_error">Ошибка списка адресов</string>
     <string name="me_marker_title">Вы тут</string>
+    <string name="no_internet_or_gps">Включите интернет или GPS приемник</string>
+    <string name="update_news_dialog_title">Новое:</string>
+    <string name="update_news_dialog_text_500">Для просмотра расположения объектов из списка паспортов на карте включите доступ в интернет, загрузите паспорта в список и нажмте красную кнопку с изображением карты.</string>
+    <string name="update_news_dialog_button">Понятно!</string>
 
 </resources>

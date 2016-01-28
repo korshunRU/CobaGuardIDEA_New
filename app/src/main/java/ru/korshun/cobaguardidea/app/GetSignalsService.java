@@ -397,63 +397,6 @@ public class GetSignalsService
                                     }
                                 }
 
-//                                disconnect();
-//                                timer.cancel();
-//
-//                                intent.putExtra(FragmentSignals.PI_STATUS, FragmentSignals.SIGNALS_STATUS_ERROR);
-//                                sendBroadcast(intent);
-//
-//                                stopSelf(startId);
-//
-//                                return;
-
-//                            } finally {
-//
-//                                if(fos != null) {
-//                                    try {
-//                                        fos.close();
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                                if(bos != null) {
-//                                    try {
-//                                        bos.close();
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                                if(dis != null) {
-//                                    try {
-//                                        dis.close();
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                                if(dosTestConnect != null) {
-//                                    try {
-//                                        dosTestConnect.close();
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//
-//                                try {
-//                                    serverFile.close();
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }
-//
-//                                setStatusToDb(db, status, objectNumber, DbHelper.DB_TABLE_SIGNALS);
-//                                dbHelper.close();
-//                                disconnect();
-//                                timer.cancel();
-//
-//                                intent.putExtra(FragmentSignals.PI_STATUS, status);
-//                                sendBroadcast(intent);
-//
-//                                stopSelf(startId);
-
                             }
 
                             if(fos != null) {
@@ -500,6 +443,7 @@ public class GetSignalsService
                             sendBroadcast(intent);
 
                             stopSelf(startId);
+                            return;
 
                         }
 
