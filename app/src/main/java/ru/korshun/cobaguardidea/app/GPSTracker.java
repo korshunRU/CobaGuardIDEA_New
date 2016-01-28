@@ -238,16 +238,29 @@ public class GPSTracker
                         .title(mContext.getString(R.string.me_marker_title))
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-
-        Barcode.GeoPoint geoPoint = getLocationFromAddress("Свердловская область, Екатеринбург");
-        if(geoPoint != null) {
-            LatLng latLng = new LatLng(geoPoint.lat / 1E6, geoPoint.lng / 1E6);
-            getGoogleMap().moveCamera(CameraUpdateFactory.zoomTo(11));
-            getGoogleMap().moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        }
+//        Barcode.GeoPoint geoPoint = getLocationFromAddress("Свердловская область, Екатеринбург");
+//        if(geoPoint != null) {
+//            LatLng latLng = new LatLng(geoPoint.lat / 1E6, geoPoint.lng / 1E6);
+//            getGoogleMap().moveCamera(CameraUpdateFactory.zoomTo(11));
+//            getGoogleMap().moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//        }
 //        System.out.println("myLog: setMyPosition " + myGeoPoint.lat / 1E6 + ", " + myGeoPoint.lng / 1E6);
 //        getGoogleMap().moveCamera(CameraUpdateFactory.zoomTo(11));
 //        getGoogleMap().moveCamera(CameraUpdateFactory.newLatLng(my));
+    }
+
+    public void setMyPosition(boolean moveCamera) {
+
+        setMyPosition();
+
+        if(moveCamera) {
+            Barcode.GeoPoint geoPoint = getLocationFromAddress("Свердловская область, Екатеринбург");
+            if (geoPoint != null) {
+                LatLng latLng = new LatLng(geoPoint.lat / 1E6, geoPoint.lng / 1E6);
+                getGoogleMap().moveCamera(CameraUpdateFactory.zoomTo(11));
+                getGoogleMap().moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            }
+        }
     }
 
     public GoogleMap getGoogleMap() {
@@ -266,7 +279,7 @@ public class GPSTracker
 
         myGeoPoint = new Barcode.GeoPoint(1, (int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
 
-        setMyPosition();
+        setMyPosition(false);
 
 //        System.out.println("myLog: onLocationChanged " + location.getProvider() + " " + location.getMyLatitude() + " " + location.getMyLongitude());
     }

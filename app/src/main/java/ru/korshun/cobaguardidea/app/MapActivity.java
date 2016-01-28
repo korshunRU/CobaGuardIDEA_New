@@ -92,7 +92,7 @@ public class MapActivity
 
         if(gpsTracker.isCanGetLocation()) {
 
-            gpsTracker.setMyPosition();
+            gpsTracker.setMyPosition(true);
 
             for (Map.Entry<String, String> item : objectAddressMap.entrySet()) {
 
