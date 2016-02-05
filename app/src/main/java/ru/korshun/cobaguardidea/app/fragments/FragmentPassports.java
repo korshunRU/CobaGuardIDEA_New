@@ -202,6 +202,12 @@ public class FragmentPassports
 
                 TextView tv = (TextView) view.findViewById(R.id.passports_item_hide);
 
+//                Intent intent = new Intent();
+//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                intent.setType("image/*");
+//                intent.setAction(intent.ACTION_GET_CONTENT);
+//                startActivityForResult(Intent.createChooser(intent, "SDSD"), 1);
+
                 showSelectFileDialog(getFilesToDecodeArray(tv));
 
             }

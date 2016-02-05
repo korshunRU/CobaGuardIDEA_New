@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 
 
+
 public class GPSTracker
         implements LocationListener {
 
@@ -31,17 +32,7 @@ public class GPSTracker
     private Context mContext;
 
     // Flag for GPS status
-    private boolean isGPSEnabled = false;
-
-    // Flag for network status
-    private boolean isNetworkEnabled = false;
-
-    // Flag for GPS status
     private boolean canGetLocation = false;
-
-    //    private Location location; // Location
-//    private double myLatitude; // Latitude
-//    private double myLongitude; // Longitude
 
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
@@ -59,6 +50,9 @@ public class GPSTracker
     private Barcode.GeoPoint myGeoPoint = null;
 
 
+
+
+
     public GPSTracker(Context context) {
 
         this.mContext = context;
@@ -66,6 +60,9 @@ public class GPSTracker
         getLocation();
 
     }
+
+
+
 
 
     public void stopListening() {
@@ -85,9 +82,10 @@ public class GPSTracker
         locationManager.removeUpdates(this);
     }
 
-
-    private Location getLocation() {
+    private void getLocation() {
         Location location = null;
+        boolean isGPSEnabled;
+        boolean isNetworkEnabled;
 
         try {
             locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -100,7 +98,7 @@ public class GPSTracker
 
             if (!isGPSEnabled && !isNetworkEnabled) {
                 Toast.makeText(mContext, R.string.no_internet_or_gps, Toast.LENGTH_LONG).show();
-                return null;
+                return;
             } else {
                 if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
                     if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -112,7 +110,7 @@ public class GPSTracker
                         //                                          int[] grantResults)
                         // to handle the case where the user grants the permission. See the documentation
                         // for ActivityCompat#requestPermissions for more details.
-                        return null;
+                        return;
                     }
                 }
 //                this.canGetLocation = true;
@@ -125,9 +123,7 @@ public class GPSTracker
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
-//                            myLatitude = (int) (location.getLatitude() * 1E6);
-//                            myLongitude = (int) (location.getLongitude() * 1E6);
-                            myGeoPoint = new Barcode.GeoPoint(1, (int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
+                            setMyGeoPoint(new Barcode.GeoPoint(1, (int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6)));
                         }
                     }
                 }
@@ -141,9 +137,7 @@ public class GPSTracker
                         if (locationManager != null) {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
-//                                myLatitude = (int) (location.getLatitude() * 1E6);
-//                                myLongitude = (int) (location.getLongitude() * 1E6);
-                                myGeoPoint = new Barcode.GeoPoint(1, (int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
+                                setMyGeoPoint(new Barcode.GeoPoint(1, (int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6)));
                             }
                         }
                     }
@@ -152,40 +146,12 @@ public class GPSTracker
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(mContext, R.string.err_data, Toast.LENGTH_LONG).show();
-            return null;
+            return;
         }
 
         setCanGetLocation(true);
-        return location;
+
     }
-
-
-//    /**
-//     * Function to get myLatitude
-//     * */
-//    public double getMyLatitude(){
-////        if(location != null){
-////            myLatitude = location.getMyLatitude();
-////        }
-//
-//        // return myLatitude
-//        return myLatitude;
-//    }
-
-
-//    /**
-//     * Function to get myLongitude
-//     * */
-//    public double getMyLongitude(){
-////        if(location != null){
-////            myLongitude = location.getMyLongitude();
-////        }
-//
-//        // return myLongitude
-//        return myLongitude;
-//    }
-
-
 
     public Barcode.GeoPoint getLocationFromAddress(String strAddress) {
 
@@ -215,15 +181,13 @@ public class GPSTracker
 
     }
 
-
     public boolean isCanGetLocation() {
         return canGetLocation;
     }
 
-    public void setCanGetLocation(boolean canGetLocation) {
+    private void setCanGetLocation(boolean canGetLocation) {
         this.canGetLocation = canGetLocation;
     }
-
 
     public void setMyPosition() {
 
@@ -231,22 +195,17 @@ public class GPSTracker
             myMarker.remove();
         }
 
-        LatLng my = new LatLng(myGeoPoint.lat / 1E6, myGeoPoint.lng / 1E6);
-        myMarker = getGoogleMap().addMarker(
-                new MarkerOptions()
-                        .position(my)
-                        .title(mContext.getString(R.string.me_marker_title))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        if(getMyGeoPoint() != null) {
 
-//        Barcode.GeoPoint geoPoint = getLocationFromAddress("Свердловская область, Екатеринбург");
-//        if(geoPoint != null) {
-//            LatLng latLng = new LatLng(geoPoint.lat / 1E6, geoPoint.lng / 1E6);
-//            getGoogleMap().moveCamera(CameraUpdateFactory.zoomTo(11));
-//            getGoogleMap().moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//        }
-//        System.out.println("myLog: setMyPosition " + myGeoPoint.lat / 1E6 + ", " + myGeoPoint.lng / 1E6);
-//        getGoogleMap().moveCamera(CameraUpdateFactory.zoomTo(11));
-//        getGoogleMap().moveCamera(CameraUpdateFactory.newLatLng(my));
+            LatLng my = new LatLng(getMyGeoPoint().lat / 1E6, getMyGeoPoint().lng / 1E6);
+            myMarker = getGoogleMap().addMarker(
+                    new MarkerOptions()
+                            .position(my)
+                            .title(mContext.getString(R.string.me_marker_title))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+        }
+
     }
 
     public void setMyPosition(boolean moveCamera) {
@@ -263,7 +222,7 @@ public class GPSTracker
         }
     }
 
-    public GoogleMap getGoogleMap() {
+    private GoogleMap getGoogleMap() {
         return googleMap;
     }
 
@@ -271,18 +230,27 @@ public class GPSTracker
         this.googleMap = googleMap;
     }
 
+    private Barcode.GeoPoint getMyGeoPoint() {
+        return myGeoPoint;
+    }
+
+    private void setMyGeoPoint(Barcode.GeoPoint myGeoPoint) {
+        this.myGeoPoint = myGeoPoint;
+    }
+
+
+
+
+
+
     @Override
     public void onLocationChanged(Location location) {
 
-//        myLatitude = location.getLatitude();
-//        myLongitude = location.getLongitude();
-
-        myGeoPoint = new Barcode.GeoPoint(1, (int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
-
+        setMyGeoPoint(new Barcode.GeoPoint(1, (int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6)));
         setMyPosition(false);
 
-//        System.out.println("myLog: onLocationChanged " + location.getProvider() + " " + location.getMyLatitude() + " " + location.getMyLongitude());
     }
+
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
