@@ -206,6 +206,7 @@ public class FragmentObjects
 
 
 
+
     /**
      *  Создаем окно подтверждения перед отправкой данных
      * @param objectNumber                      - номер объекта для запроса
@@ -602,6 +603,14 @@ public class FragmentObjects
     @Override
     public void onStart() {
         super.onStart();
+
+        if(readItemsFromDb() == 0 ||
+                (readItemsFromDb() > 0 && !Functions.isServiceRunning(SetGuardStatusService.class, getActivity()))) {
+            sendButton.setEnabled(true);
+            objectNumberEditText.setEnabled(true);
+            objectNumberEditText.setText("");
+        }
+
         if(br != null) {
             getActivity().registerReceiver(br, intentFilter);
         }

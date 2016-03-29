@@ -86,27 +86,6 @@ public class RootActivity
 
 
 
-    /**
-     *  Здесь, значит, делается следующая херня: всем фрагментам отсылается то, что пришло от
-     *  сервиса. Любого. А в самом фрагменте уже будем ловить данные и смотреть, что это и для
-     *  чего прилетело
-     */
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//
-//        List<android.support.v4.app.Fragment> fragments = getSupportFragmentManager().getFragments();
-//
-//
-//        for(android.support.v4.app.Fragment f : fragments) {
-//            if (f != null) {
-//                f.onActivityResult(requestCode, resultCode, data);
-//            }
-//        }
-//
-//    }
-
-
-
 
 
     @Override

@@ -599,7 +599,7 @@ public class FragmentPassports
 
                 if(fileName.contains(Settings.OBJECT_PART_DIVIDER)) {
 
-                    String fileNameSplit[] =                                    fileName.substring(0, fileName.lastIndexOf(Settings.OBJECT_PART_DIVIDER)).split(",");
+                    String fileNameSplit[] =                    fileName.substring(0, fileName.lastIndexOf(Settings.OBJECT_PART_DIVIDER)).split(",");
 
                     if (fileNameSplit.length > 1) {
 

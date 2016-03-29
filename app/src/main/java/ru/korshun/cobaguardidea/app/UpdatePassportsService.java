@@ -19,6 +19,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -228,6 +229,66 @@ public class UpdatePassportsService
     }
 
 
+    /**
+     *  Функция ищет все файлы, которые относятся к выбранному объекту, и удаляет их
+     * @param objectNumber          - номер объекта, чьи файлы надо удалить
+     */
+    private void deleteEqualsFiles(final String objectNumber) {
+        String passportsPath =                              Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null);
+
+        FilenameFilter filenameFilter =                     new FilenameFilter() {
+
+            @Override
+            public boolean accept(File dir, String filename) {
+
+                return filename.contains(objectNumber);
+
+            }
+
+        };
+
+        if(passportsPath != null) {
+            File[] listFiles =                              new File(passportsPath).listFiles(filenameFilter);
+
+            for(File searchFile : listFiles) {
+                if(searchFile.getName().contains(Settings.OBJECT_PART_DIVIDER)) {
+                    String fileNameSplit[] =                searchFile.getName().substring(
+                                                                    0,
+                                                                    searchFile
+                                                                            .getName()
+                                                                            .lastIndexOf(Settings.OBJECT_PART_DIVIDER)
+                                                            ).split(",");
+
+                    if (fileNameSplit.length > 1) {
+
+                        for(String fileNamePart : fileNameSplit) {
+
+                            if(fileNamePart.equals(objectNumber)) {
+//                                    System.out.println("myLog: " + searchFile);
+                                searchFile.delete();
+                                break;
+                            }
+
+                        }
+
+                    }
+
+                    else {
+                        if(fileNameSplit[0].equals(objectNumber)) {
+//                                System.out.println("myLog: " + searchFile);
+                            searchFile.delete();
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+
 
 
 
@@ -237,7 +298,7 @@ public class UpdatePassportsService
      * @param startId       - ID сервиса
      * @param objectNumber  - номер объекта для загрузки
      */
-    private void getFiles(int startId, int objectNumber) {
+    private void getFiles(int startId, final int objectNumber) {
 
         allFilesSocket =                                new Socket();
 
@@ -315,7 +376,11 @@ public class UpdatePassportsService
 
 
         if (objectNumber > 0) {
+
+            deleteEqualsFiles(String.valueOf(objectNumber));
+
             out.println("getObjectFiles:" + objectNumber + ":" + deviceId + ":" + getResources().getString(R.string.version_short));
+
         }
 
 

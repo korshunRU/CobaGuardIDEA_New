@@ -260,7 +260,6 @@ public class FragmentSignals
 
 
 
-
     /**
      *  Получаем из sharedPreferences список последних запрошенных объектов по сигналам
      * @return                  - возвращается массив типа String
@@ -566,6 +565,7 @@ public class FragmentSignals
     @Override
     public void onStop() {
         super.onStop();
+//        System.out.println("myLog : onStop");
         if(br != null) {
             try {
                 getActivity().unregisterReceiver(br);
@@ -578,6 +578,13 @@ public class FragmentSignals
     @Override
     public void onStart() {
         super.onStart();
+//        System.out.println("myLog : onStart");
+        if(readItemsFromDb() == 0 ||
+                (readItemsFromDb() > 0 && !Functions.isServiceRunning(GetSignalsService.class, getActivity()))) {
+            objectNumberEditText.setEnabled(true);
+            objectNumberEditText.setText("");
+            sendButton.setEnabled(true);
+        }
         if(br != null) {
             getActivity().registerReceiver(br, intentFilter);
         }
