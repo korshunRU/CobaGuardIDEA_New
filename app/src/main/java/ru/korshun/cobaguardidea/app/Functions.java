@@ -10,6 +10,8 @@ import android.net.NetworkInfo;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import ru.korshun.cobaguardidea.app.fragments.FragmentPassports;
+
 /**
  *  Файл с пользовательскими функциями
  */
@@ -43,6 +45,30 @@ public final class Functions {
      */
     public static String getFirstWordInString(String str) {
         return str.contains(" ") ? str.substring(0, str.indexOf(" ")) : str;
+    }
+
+
+
+
+
+    /**
+     *  Функция создает массив из двух элементов из входящей строки. [0] - это тип объекта (Сова,
+     *  Скит, Око и т.д.), [1] - это номер объекта
+     * @param str               - входящая строка формата OKO_1234 или просто 1234
+     * @return                  - возвращается массив
+     */
+    public static String[] getNumberAndTypeFromString(String str) {
+        String[] numberAndType =                            new String[2];
+
+        if(str.contains("_")) {
+            numberAndType =                                 str.split("_");
+        }
+        else {
+            numberAndType[0] =                              FragmentPassports.DEFAULT_OBJECT_PREFIX;
+            numberAndType[1] =                              str;
+        }
+
+        return numberAndType;
     }
 
 

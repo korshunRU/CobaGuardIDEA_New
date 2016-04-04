@@ -4,7 +4,7 @@ apply plugin: 'com.android.application'
 android {
 
     compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '23.0.3'
 
     signingConfigs {
         release {
@@ -19,8 +19,8 @@ android {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 29
-        versionName "5.1.0"
+        versionCode 30
+        versionName "5.2.0"
     }
 
     buildTypes {

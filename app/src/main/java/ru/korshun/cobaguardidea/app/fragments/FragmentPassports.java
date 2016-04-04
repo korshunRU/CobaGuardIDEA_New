@@ -42,25 +42,31 @@ public class FragmentPassports
         extends Fragment {
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final String                        READ_UPDATE_MSG_KEY =           "pref_read_update_msg";
-    private final int                           READ_UPDATE_MSG_ID =            1;
+    private final String                READ_UPDATE_MSG_KEY =
+                                                            "pref_read_update_msg";
+    private final int                   READ_UPDATE_MSG_ID =
+                                                            1;
 
-    public RootActivity                         rootActivity;
+    public RootActivity                 rootActivity;
 
-    private ListView                            listPassports;
+    private ListView                    listPassports;
 
-    private String                              passportsPath;
+    private String                      passportsPath;
 
-    private String                              smsNumber;
-    private int                                 smsLiveTime;
+    private String                      smsNumber;
+    private int                         smsLiveTime;
 
-    private ImgCryptoDecoder                    decoder;
+    private ImgCryptoDecoder            decoder;
 
-    private String                              tempPassportsPath;
+    private String                      tempPassportsPath;
 
 //    private HashMap<String, String>             objectAddressMap =              null;
 
-    public final static String                  OBJECT_ADDRESS_MAP_INTENT_KEY = "objectAddressMapKey";
+    public final static String          OBJECT_ADDRESS_MAP_INTENT_KEY =
+                                                            "objectAddressMapKey";
+
+    public final static String          DEFAULT_OBJECT_PREFIX =
+                                                            "COBA";
 
 //    private MediaScannerConnection  mediaScannerConnection =            null;
 
@@ -69,7 +75,7 @@ public class FragmentPassports
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        rootActivity =                                                          (RootActivity) getActivity();
+        rootActivity =                                      (RootActivity) getActivity();
     }
 
 
@@ -416,20 +422,28 @@ public class FragmentPassports
          */
         private void getSms() {
 
-            Cursor cursor =                                                     getActivity().getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
-            ArrayList<String> listIncomingSms =                                 new ArrayList<>();
+            Cursor cursor =                                 getActivity().getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
+            ArrayList<String> listIncomingSms =             new ArrayList<>();
 
             if(cursor != null && cursor.moveToFirst()) {
 
                 for (int idx = 0; idx < cursor.getCount(); idx++) {
-                    String from =                                               cursor.getString(cursor.getColumnIndexOrThrow("address"));
-                    String body =                                               cursor.getString(cursor.getColumnIndexOrThrow("body"));
-                    Long timeDifference =                                       (Calendar.getInstance().getTimeInMillis() - cursor.getLong(cursor.getColumnIndexOrThrow("date"))) / 1000;
+                    String from =                           cursor.getString(cursor.getColumnIndexOrThrow("address"));
+                    String body =                           cursor.getString(cursor.getColumnIndexOrThrow("body"));
+                    Long timeDifference =                   (Calendar.getInstance().getTimeInMillis() -
+                                                                cursor.getLong(cursor.getColumnIndexOrThrow("date"))) / 1000;
+                    String[] numberAndType =                Functions.getNumberAndTypeFromString(
+                                                                Functions.getFirstWordInString(body));
 
                     if(from.equals(smsNumber) &&
                             timeDifference <= smsLiveTime &&
-                            Functions.isInteger(Functions.getFirstWordInString(body))) {
+                            Functions.isInteger(numberAndType[1]) &&
+                            (smsNumber.equals(Settings.SMS_NUMBERS_ARRAY[0]) ||
+                                    (!smsNumber.equals(Settings.SMS_NUMBERS_ARRAY[0]) &&
+                                            numberAndType[0].equals(DEFAULT_OBJECT_PREFIX)))) {
+
                         listIncomingSms.add(body);
+
                     }
 
                     cursor.moveToNext();
@@ -458,78 +472,55 @@ public class FragmentPassports
          */
         private void createAdapter(final ArrayList<String> listIncomingSms) {
 
-            ArrayList<HashMap<String, Object>> listPassports =                  new ArrayList<>();
+            ArrayList<HashMap<String, Object>> listPassports =
+                                                            new ArrayList<>();
 
             if(listIncomingSms.size() > 0) {
 
                 for (final String smsBody : listIncomingSms) {
 
-//                    System.out.println("myLog " + smsBody);
+                    final String[] numberAndType =          Functions.getNumberAndTypeFromString(
+                                                                Functions.getFirstWordInString(smsBody));
 
-                    FilenameFilter filenameFilter =                             new FilenameFilter() {
+                    FilenameFilter filenameFilter =         new FilenameFilter() {
 
                         @Override
                         public boolean accept(File dir, String filename) {
 
-                            return filename.contains(Functions.getFirstWordInString(smsBody));
+                            return filename.contains(numberAndType[1]);
 
                         }
 
                     };
 
-                    final File[] listFiles =                                    new File(passportsPath).listFiles(filenameFilter);
+                    final File[] listFiles =            new File(passportsPath).listFiles(filenameFilter);
 
                     if (listFiles != null && listFiles.length > 0) {
 
-                        HashMap<String, Object> listPassportItem = new HashMap<>();
-                        String objectNumber = null, objectAddress = null, filesToDecode = null;
+                        HashMap<String, Object> listPassportItem =
+                                                        new HashMap<>();
+                        String objectNumber =           null,
+                                objectAddress =         null,
+                                filesToDecode =         null;
 
                         for (File cobaFile : listFiles) {
 
                             if (cobaFile.isFile()) {
 
-//                                objectNumber = objectEquals(listIncomingSms, cobaFile.getName());
-//                                objectAddress = getAddressFromSms(smsBody);
+                                objectNumber =          objectEquals(listIncomingSms, cobaFile.getName());
 
-//                                System.out.println("myLog " + objectNumber + " " + cobaFile.getName() + " " + filesToDecode);
+                                if (objectNumber != null) {
 
-                                if (objectEquals(listIncomingSms, cobaFile.getName()) != null) {
-
-                                    objectNumber = objectEquals(listIncomingSms, cobaFile.getName());
-                                    objectAddress = getAddressFromSms(smsBody);
+                                    objectAddress =         getAddressFromSms(smsBody);
 
                                     if (filesToDecode != null) {
-                                        filesToDecode += "#";
+                                        filesToDecode +=    "#";
                                     } else {
-                                        filesToDecode = "";
+                                        filesToDecode =     "";
                                     }
 
-                                    filesToDecode += cobaFile.getName();
+                                    filesToDecode +=        cobaFile.getName();
 
-
-
-
-//                                    int startDivider = cobaFile.getName().indexOf(Settings.OBJECT_PART_DIVIDER);
-//                                    int finishDivider = cobaFile.getName().lastIndexOf(".");
-
-//                                    fileNameIndex = cobaFile.getName().substring(startDivider, finishDivider);
-
-
-
-//                                    System.out.println("myLog " + objectNumber + " " + cobaFile.getName() + " " + filesToDecode);
-//                                    listPassportItem.put("img",                 R.mipmap.ic_passports_item_ico);
-//                                    listPassportItem.put("objectNumber",        objectNumber + fileNameIndex);
-//                                    listPassportItem.put("objectAddress",       objectAddress);
-//                                    listPassportItem.put("fileName",            cobaFile.getName());
-//
-//                                    listPassports.add(listPassportItem);
-
-//                                    listPassportItem = new HashMap<>();
-
-//                                    listPassportItem.put("img", R.mipmap.ic_passports_item_ico);
-//                                    listPassportItem.put("objectNumber", objectNumber);
-//                                    listPassportItem.put("objectAddress", objectAddress);
-//                                    listPassportItem.put("fileName", filesToDecode);
 
                                 }
 
@@ -537,14 +528,11 @@ public class FragmentPassports
 
                         }
 
-//                        System.out.println("myLog " + filesToDecode);
-
                         if (objectNumber != null) {
 
-//                            listPassportItem = new HashMap<>();
-//
                             listPassportItem.put("img", R.mipmap.ic_passports_item_ico);
                             listPassportItem.put("objectNumber", objectNumber);
+                            listPassportItem.put("objectType", "(" + numberAndType[0] + ")");
                             listPassportItem.put("objectAddress", objectAddress);
                             listPassportItem.put("fileName", filesToDecode);
 
@@ -565,12 +553,14 @@ public class FragmentPassports
                                                                                     new String[]{
                                                                                             "img",
                                                                                             "objectNumber",
+                                                                                            "objectType",
                                                                                             "objectAddress",
                                                                                             "fileName"
                                                                                     },
                                                                                     new int[]{
                                                                                             R.id.passports_item_img,
                                                                                             R.id.passports_item_object_number,
+                                                                                            R.id.passports_item_object_type,
                                                                                             R.id.passports_item_object_address,
                                                                                             R.id.passports_item_hide
                                                                                     });
@@ -597,31 +587,29 @@ public class FragmentPassports
 
             for (String smsBody : listIncomingSms) {
 
+                final String[] numberAndType =              Functions.getNumberAndTypeFromString(
+                                                                Functions.getFirstWordInString(smsBody));
+
                 if(fileName.contains(Settings.OBJECT_PART_DIVIDER)) {
 
-                    String fileNameSplit[] =                    fileName.substring(0, fileName.lastIndexOf(Settings.OBJECT_PART_DIVIDER)).split(",");
+                    String fileNameSplit[] =                (numberAndType[0].equals(DEFAULT_OBJECT_PREFIX)) ?
+                                                                fileName.substring(0, fileName.lastIndexOf(
+                                                                    Settings.OBJECT_PART_DIVIDER)).split(",") :
+                                                                fileName.substring(numberAndType[0].length() + 1, fileName.lastIndexOf(
+                                                                        Settings.OBJECT_PART_DIVIDER)).split(",");
 
-                    if (fileNameSplit.length > 1) {
+                    for (String fn : fileNameSplit) {
 
-                        for (String fn : fileNameSplit) {
+//                        System.out.println("myLog " + smsBody + " " + fn);
 
-                            if (Functions.isInteger(fn) && fn.equals(Functions.getFirstWordInString(smsBody))) {
+                        if (Functions.isInteger(fn) && fn.equals(numberAndType[1])) {
 
-                                return Functions.getFirstWordInString(smsBody);
-
-                            }
+                            return numberAndType[1];
 
                         }
 
                     }
 
-                    else {
-
-                        if (Functions.isInteger(fileNameSplit[0]) && fileNameSplit[0].equals(Functions.getFirstWordInString(smsBody))) {
-                            return Functions.getFirstWordInString(smsBody);
-                        }
-
-                    }
                 }
 
             }
