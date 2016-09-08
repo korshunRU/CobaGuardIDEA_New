@@ -442,6 +442,7 @@ public class FragmentPassports
                                     (!smsNumber.equals(Settings.SMS_NUMBERS_ARRAY[0]) &&
                                             numberAndType[0].equals(DEFAULT_OBJECT_PREFIX)))) {
 
+//                        System.out.println("myLog " + body);
                         listIncomingSms.add(body);
 
                     }
@@ -479,6 +480,8 @@ public class FragmentPassports
 
                 for (final String smsBody : listIncomingSms) {
 
+//                    System.out.println("myLog smsBody:" + smsBody);
+
                     final String[] numberAndType =          Functions.getNumberAndTypeFromString(
                                                                 Functions.getFirstWordInString(smsBody));
 
@@ -487,7 +490,11 @@ public class FragmentPassports
                         @Override
                         public boolean accept(File dir, String filename) {
 
-                            return filename.contains(numberAndType[1]);
+                            return (!numberAndType[0].equals(DEFAULT_OBJECT_PREFIX)) ?
+                                        filename.contains(numberAndType[0]) &&
+                                                filename.contains(numberAndType[1]) :
+                                        filename.contains(numberAndType[1]) &&
+                                                !filename.contains("_");
 
                         }
 
@@ -502,16 +509,25 @@ public class FragmentPassports
                         String objectNumber =           null,
                                 objectAddress =         null,
                                 filesToDecode =         null;
+//                        boolean fileFound =             false;
 
                         for (File cobaFile : listFiles) {
 
+//                            System.out.println("myLog cobaFile:" + cobaFile);
+
                             if (cobaFile.isFile()) {
 
-                                objectNumber =          objectEquals(listIncomingSms, cobaFile.getName());
+                                String checkObjectNumber =  objectEquals(listIncomingSms, cobaFile.getName());
 
-                                if (objectNumber != null) {
+//                                System.out.println("myLog 1: " + objectNumber);
 
+                                if (checkObjectNumber != null) {
+
+//                                    System.out.println("myLog 2: " + objectNumber);
+
+                                    objectNumber =          checkObjectNumber;
                                     objectAddress =         getAddressFromSms(smsBody);
+//                                    fileFound =             true;
 
                                     if (filesToDecode != null) {
                                         filesToDecode +=    "#";
@@ -521,12 +537,13 @@ public class FragmentPassports
 
                                     filesToDecode +=        cobaFile.getName();
 
-
                                 }
 
                             }
 
                         }
+
+//                        System.out.println("myLog: " + objectNumber + "_" + filesToDecode);
 
                         if (objectNumber != null) {
 
@@ -592,18 +609,18 @@ public class FragmentPassports
 
                 if(fileName.contains(Settings.OBJECT_PART_DIVIDER)) {
 
-                    String fileNameSplit[] =                (numberAndType[0].equals(DEFAULT_OBJECT_PREFIX)) ?
+                    String fileNameSplit[] =                (!fileName.contains("_")) ?
                                                                 fileName.substring(0, fileName.lastIndexOf(
                                                                     Settings.OBJECT_PART_DIVIDER)).split(",") :
-                                                                fileName.substring(numberAndType[0].length() + 1, fileName.lastIndexOf(
+                                                                fileName.substring(fileName.indexOf("_") + 1, fileName.lastIndexOf(
                                                                         Settings.OBJECT_PART_DIVIDER)).split(",");
 
                     for (String fn : fileNameSplit) {
 
-//                        System.out.println("myLog " + smsBody + " " + fn);
+//                        System.out.println("myLog fileNameSplit:" + fn);
 
                         if (Functions.isInteger(fn) && fn.equals(numberAndType[1])) {
-
+//                            System.out.println("myLog " + smsBody + "%" + fn + "%" + fileName);
                             return numberAndType[1];
 
                         }

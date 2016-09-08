@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -77,6 +78,11 @@ public class FragmentSignals
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(Boot.sharedPreferences == null) {
+            Boot.sharedPreferences =                        PreferenceManager
+                                                                .getDefaultSharedPreferences(getContext());
+        }
 
         cobaSignalsPath =                                   Boot
                                                                 .sharedPreferences

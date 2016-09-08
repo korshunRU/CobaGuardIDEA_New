@@ -1,13 +1,17 @@
 package ru.korshun.cobaguardidea.app;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
@@ -300,6 +304,10 @@ public class UpdatePassportsService
      */
     private void getFiles(int startId, final int objectNumber) {
 
+
+
+
+
         allFilesSocket =                                new Socket();
 
 
@@ -465,7 +473,8 @@ public class UpdatePassportsService
 
             // СОединение с сервером для скачивания и обработка ошибки соединения
             try {
-                downloadFilesSocket.connect(new InetSocketAddress(InetAddress.getByName(serverIp), Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_PASSPORTS);
+                downloadFilesSocket.connect(new InetSocketAddress(InetAddress.getByName(serverIp),
+                        Settings.PORT_FILE), Settings.CONNECTION_TIMEOUT_PASSPORTS);
                 downloadFilesSocket.setSoTimeout(15000);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -582,6 +591,38 @@ public class UpdatePassportsService
 
                 byte[] buffer =                         new byte[bufferSize * 1024];
                 int sizeRead;
+
+
+
+                // ЕБУЧАЯ ПРОВЕРКА РАЗРЕШЕНИЙ ДЛЯ 6го АНДРОИДА
+//                if (Build.VERSION.SDK_INT >= 23) {
+//
+//                    if(!(ContextCompat.checkSelfPermission(getApplicationContext(),
+//                            Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+//
+//                    }
+//
+//                    else {
+//
+//                    }
+
+//                    disconnectFromServer();
+//
+//                    intent.putExtra(FragmentPassportsUpdate.PI_STATUS, FragmentPassportsUpdate.CODE_STATUS_ERROR);
+//                    sendBroadcast(intent);
+//
+//                    mBuilder.setContentTitle(getResources().getString(R.string.err_data))
+//                            .setProgress(0, 0, false)
+//                            .setOngoing(false);
+//                    nm.notify(notificationId, mBuilder.build());
+//
+//                    isRunning = false;
+//
+//                    stopSelf(startId);
+//                    return;
+//
+//                }
+
 
                 while ((sizeRead = dis.read(buffer, 0, buffer.length)) != -1) {
 
