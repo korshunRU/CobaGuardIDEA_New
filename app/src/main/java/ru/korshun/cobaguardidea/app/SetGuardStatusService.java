@@ -23,7 +23,7 @@ import ru.korshun.cobaguardidea.app.fragments.FragmentObjects;
 
 
 /**
- *  Сервис, отвечающий за загрузку файлов с сигналами
+ *  Сервис, отвечающий за постановку\снятие с охраны
  */
 public class SetGuardStatusService
         extends MyServiceSignalsAndGuard {
@@ -77,7 +77,8 @@ public class SetGuardStatusService
             }
 
             Timer timer =                               new Timer();
-            ScheduledCheckGuardAnswer st =              new ScheduledCheckGuardAnswer(objectToSetGuard, objectGuardStatus, timer, startId);
+            ScheduledCheckGuardAnswer st =              new ScheduledCheckGuardAnswer(objectToSetGuard,
+                                                            objectGuardStatus, timer, startId);
 
             timer.schedule(st, 0, Settings.CHECK_GUARD_REPEAT_IN_SECONDS * 1000);
         }
@@ -131,7 +132,8 @@ public class SetGuardStatusService
         connectSocket =                             new Socket();
 
         try {
-            connectSocket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_IP), Settings.PORT), Settings.CONNECTION_TIMEOUT_GUARD);
+            connectSocket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_IP), Settings.PORT),
+                    Settings.CONNECTION_TIMEOUT_GUARD);
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -144,7 +146,8 @@ public class SetGuardStatusService
 
         // создаем Reader для работы с ответами сервера
         try {
-            this.in =                               new BufferedReader(new InputStreamReader(connectSocket.getInputStream()));
+            this.in =                               new BufferedReader(new InputStreamReader(
+                                                            connectSocket.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -249,7 +252,7 @@ public class SetGuardStatusService
 
 
 
-        public ScheduledCheckGuardAnswer(int objectNumber, String objectGuardStatus, Timer timer, int startId) {
+        ScheduledCheckGuardAnswer(int objectNumber, String objectGuardStatus, Timer timer, int startId) {
             this.objectNumber =                         objectNumber;
             this.objectStatus =                         objectGuardStatus;
             this.startId =                              startId;

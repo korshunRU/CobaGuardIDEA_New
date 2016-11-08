@@ -85,4 +85,6 @@ public final class Settings {
 
     public static final int GET_SIGNALS_OBJECTS_STORE_COUNT =   3;
 
+    public static final int ALARM_PERIOD_TIME =                 3;
+
 }

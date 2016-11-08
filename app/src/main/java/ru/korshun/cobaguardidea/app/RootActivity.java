@@ -78,6 +78,8 @@ public class RootActivity
             onNavigationItemSelected(firstItem);
         }
 
+        Alarm.getInstance(getApplicationContext()).createAlarm();
+
 //        Toast
 //                .makeText(this, StartActivity.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, "-") + "", Toast.LENGTH_LONG)
 //                .show();

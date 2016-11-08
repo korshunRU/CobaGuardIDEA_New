@@ -317,7 +317,8 @@ public class FragmentObjects
 
         ArrayList<HashMap<String, Object>> listPassports =      new ArrayList<>();
 
-        DbHelper dbHelper =                                     new DbHelper(getActivity(), Settings.DB_NAME, Settings.DB_VERSION);
+        DbHelper dbHelper =                                     new DbHelper(getActivity(),
+                                                                    Settings.DB_NAME, Settings.DB_VERSION);
         SQLiteDatabase db =                                     dbHelper.getWritableDatabase();
 
         Cursor c =                                              db.rawQuery(
@@ -512,7 +513,7 @@ public class FragmentObjects
 
 
 
-        public ScanSms(ProgressDialog pd, String objectNumber) {
+        ScanSms(ProgressDialog pd, String objectNumber) {
             this.objectNumber =                     objectNumber;
             this.pd =                               pd;
 

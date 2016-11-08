@@ -244,7 +244,7 @@ public class FragmentPassports
         builder
                 .setTitle(R.string.update_news_dialog_title)
                 .setMessage(R.string.update_news_dialog_text_500)
-                .setPositiveButton(R.string.update_news_dialog_button, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.positive_dialog_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Boot.sharedPreferences

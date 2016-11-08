@@ -19,10 +19,13 @@ public class Boot
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
 
             if(Boot.sharedPreferences == null) {
-                Boot.sharedPreferences =                                PreferenceManager.getDefaultSharedPreferences(context);
+                Boot.sharedPreferences =                                PreferenceManager
+                                                                            .getDefaultSharedPreferences(context);
             }
 
             context.startService(new Intent(context, MyNotification.class));
+
+            Alarm.getInstance(context).createAlarm();
 //            context.startService(new Intent(context, MyCheckDataChange.class));
         }
 

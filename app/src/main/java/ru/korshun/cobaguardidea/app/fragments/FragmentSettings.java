@@ -77,11 +77,13 @@ public class FragmentSettings
 
                                                                                 switch (key) {
                                                                                     case SERVER_ADDRESS_KEY:
-                                                                                        findPreference(key).setSummary(setupServer.getEntry());
+                                                                                        findPreference(key)
+                                                                                                .setSummary(setupServer.getEntry());
                                                                                         break;
 
                                                                                     case SMS_OWNER_KEY:
-                                                                                        findPreference(key).setSummary(setupSmsSender.getEntry());
+                                                                                        findPreference(key)
+                                                                                                .setSummary(setupSmsSender.getEntry());
                                                                                         break;
                                                                                 }
 
