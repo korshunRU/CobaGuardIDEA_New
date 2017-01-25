@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -86,6 +87,11 @@ public class FragmentPassports
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v =                                                                inflater.inflate(R.layout.fragment_passports, container, false);
+
+        if(Boot.sharedPreferences == null) {
+            Boot.sharedPreferences =                            PreferenceManager
+                    .getDefaultSharedPreferences(getContext());
+        }
 
         int lastReadId =                                                        Boot.sharedPreferences.getInt(READ_UPDATE_MSG_KEY, 0);
 
