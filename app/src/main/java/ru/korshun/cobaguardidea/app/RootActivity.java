@@ -78,7 +78,10 @@ public class RootActivity
             onNavigationItemSelected(firstItem);
         }
 
-        Alarm.getInstance(getApplicationContext()).createAlarm();
+//        System.out.println("ALARM: " + Boot.sharedPreferences.getString(
+//                FragmentSettings.ALARM_PERIOD_KEY, "000"));
+
+//        Alarm.getInstance(getApplicationContext()).createAlarm();
 
 //        Toast
 //                .makeText(this, StartActivity.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, "-") + "", Toast.LENGTH_LONG)

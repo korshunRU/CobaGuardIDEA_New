@@ -27,6 +27,12 @@
         android:defaultValue="false">
     </ListPreference>
 
+    <ListPreference
+        android:key="pref_set_alarm_period"
+        android:title="@string/pref_set_alarm_title"
+        android:defaultValue="false">
+    </ListPreference>
+
     <SwitchPreference
         android:key="pref_set_auto_update"
         android:title="@string/pref_set_auto_update_title"

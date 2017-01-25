@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import ru.korshun.cobaguardidea.app.Alarm;
 import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.R;
 import ru.korshun.cobaguardidea.app.Settings;
@@ -24,6 +25,7 @@ public class FragmentSettings
     public final static String PASSPORTS_PATH_KEY =                     "pref_view_passports_path";
     public final static String SERVER_ADDRESS_KEY =                     "pref_set_server";
     public final static String SMS_OWNER_KEY =                          "pref_set_sms_sender";
+    public final static String ALARM_PERIOD_KEY =                       "pref_set_alarm_period";
     public final static String AUTO_UPDATE_KEY =                        "pref_set_auto_update";
     public final static String AUTO_UPDATE_KEY_WIFI =                   "pref_set_auto_update_wifi";
 
@@ -69,6 +71,14 @@ public class FragmentSettings
 
 
 
+        //Установки для настройки периода проверки обьектов
+        final ListPreference setupAlarmPeriod =                         (ListPreference) findPreference(ALARM_PERIOD_KEY);
+
+        setupAlarmPeriod.setEntries(Settings.ALARM_PERIOD_ARRAY_LEGEND);
+        setupAlarmPeriod.setEntryValues(Settings.ALARM_PERIOD_ARRAY);
+        setupAlarmPeriod.setSummary(setupAlarmPeriod.getEntry());
+
+
         sharedPreferencesListener =                                     new SharedPreferences.OnSharedPreferenceChangeListener() {
                                                                             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 //                                                                                Toast
@@ -84,6 +94,12 @@ public class FragmentSettings
                                                                                     case SMS_OWNER_KEY:
                                                                                         findPreference(key)
                                                                                                 .setSummary(setupSmsSender.getEntry());
+                                                                                        break;
+
+                                                                                    case ALARM_PERIOD_KEY:
+                                                                                        findPreference(key)
+                                                                                                .setSummary(setupAlarmPeriod.getEntry());
+                                                                                        Alarm.getInstance(getActivity()).createAlarm();
                                                                                         break;
                                                                                 }
 
@@ -125,10 +141,10 @@ public class FragmentSettings
 
 
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//    }
 
 
 

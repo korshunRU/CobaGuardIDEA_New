@@ -35,6 +35,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import ru.korshun.cobaguardidea.app.Alarm;
+import ru.korshun.cobaguardidea.app.Boot;
 import ru.korshun.cobaguardidea.app.DbHelper;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.R;
@@ -68,6 +70,9 @@ public class FragmentObjects
     public static final int                             GUARD_STATUS_AUTH_ERROR =           -4;
     public static final int                             GUARD_STATUS_CLEAR_FILE =           -5;
     public static final int                             GUARD_STATUS_QUERY_ERROR =          -6;
+
+//    private long                                        clickTime =                         0l;
+//    private int                                         clickCount =                        0;
 
     private final String                                SENDER_SMS_NUMBER =                 Settings.SMS_NUMBERS_ARRAY[1];
 //    private final String                                SENDER_SMS_NUMBER =                 "InternetSMS";
@@ -264,6 +269,7 @@ public class FragmentObjects
             insertObjectToDb(objectNumber, type);
             readItemsFromDb();
             createService(Integer.parseInt(objectNumber), type);
+            Alarm.getInstance(getContext()).createAlarm();
         }
         else {
             Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.err_data_object_number), Toast.LENGTH_LONG).show();

@@ -62,6 +62,9 @@ public final class Settings {
     public static final String[] SMS_NUMBERS_ARRAY =            new String[]{"COBA",            "+79049820133",     "InternetSMS"};
     public static final String[] SMS_NUMBERS_ARRAY_LEGEND =     new String[]{"ГБР",             "Сервис",           "TEST"};
 
+    public static final String[] ALARM_PERIOD_ARRAY =           new String[]{"0",               "30",               "45"};
+    public static final String[] ALARM_PERIOD_ARRAY_LEGEND =    new String[]{"5 мин",           "30 мин",           "45 мин"};
+
 //    public static final String[] SMS_NUMBERS_ARRAY =            new String[]{"COBA",            "+79049820133"};
 //    public static final String[] SMS_NUMBERS_ARRAY_LEGEND =     new String[]{"ГБР",             "Сервис"};
 
@@ -85,6 +88,6 @@ public final class Settings {
 
     public static final int GET_SIGNALS_OBJECTS_STORE_COUNT =   3;
 
-    public static final int ALARM_PERIOD_TIME =                 3;
+//    public static final int ALARM_PERIOD_TIME =                 1;
 
 }

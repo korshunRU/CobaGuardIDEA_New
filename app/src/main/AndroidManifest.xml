@@ -35,6 +35,8 @@
         android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission
         android:name="ru.korshun.cobaguardidea.app.permission.MAPS_RECEIVE" />
+    <uses-permission
+        android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -116,6 +118,7 @@
         </receiver>
 
         <receiver android:name=".AlarmReceiver"/>
+
 
         <meta-data
             android:name="com.google.android.gms.version"

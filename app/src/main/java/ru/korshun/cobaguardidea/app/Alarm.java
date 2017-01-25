@@ -7,19 +7,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-class Alarm {
+import ru.korshun.cobaguardidea.app.fragments.FragmentSettings;
+
+public class Alarm {
 
     private static volatile Alarm instance;
     private Context context;
-    private AlarmManager am;
-    private PendingIntent pi;
 
     private Alarm(Context context) {
         this.context = context;
-        createData();
     }
 
-    static Alarm getInstance(Context context) {
+    public static Alarm getInstance(Context context) {
 
         Alarm localInstance = instance;
 
@@ -36,38 +35,36 @@ class Alarm {
 
     }
 
-    void createAlarm() {
+    public void createAlarm() {
 
-        if (isAlarmExist()) {
-            cancelAlarm();
-            createData();
+        String alarmPeriod = Boot.sharedPreferences.getString(
+                FragmentSettings.ALARM_PERIOD_KEY, Settings.ALARM_PERIOD_ARRAY[1]);
+
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pi = PendingIntent.getBroadcast(context, 0,
+                new Intent(context, AlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if(Integer.parseInt(alarmPeriod) > 0) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                am.setExact(AlarmManager.RTC_WAKEUP,
+                        System.currentTimeMillis() + 1000 * 60 * Integer.parseInt(alarmPeriod), pi);
+            }
+            else {
+                am.set(AlarmManager.RTC_WAKEUP,
+                        System.currentTimeMillis() + 1000 * 60 * Integer.parseInt(alarmPeriod), pi);
+            }
+
+            System.out.println("ALARM: Set alarm to " + alarmPeriod);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + 1000 * 60 * Settings.ALARM_PERIOD_TIME, pi);
-        }
-        else {
-            am.set(AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + 1000 * 60 * Settings.ALARM_PERIOD_TIME, pi);
+        else if(Integer.parseInt(alarmPeriod) == 0) {
+            am.cancel(pi);
+            pi.cancel();
+            System.out.println("ALARM: alarm disabled");
         }
 
-        System.out.println("ALARM: Set alarm");
     }
 
-    private void createData() {
-        am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        pi = PendingIntent.getBroadcast(context, 0, new Intent(context, AlarmReceiver.class), 0);
-    }
-
-    private void cancelAlarm() {
-        am.cancel(pi);
-        pi.cancel();
-    }
-
-    private boolean isAlarmExist() {
-        return PendingIntent.getBroadcast(context, 0, new Intent(context, AlarmReceiver.class),
-                PendingIntent.FLAG_NO_CREATE) != null;
-    }
 
 }

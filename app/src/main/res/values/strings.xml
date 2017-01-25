@@ -21,9 +21,8 @@
     <string name="err_data">Произошла ошибка</string>
 
     <string name="pref_set_server_title">Адрес сервера</string>
-
     <string name="pref_set_sms_sender_title">Источник смс</string>
-
+    <string name="pref_set_alarm_title">Период проверки постановок в охрану</string>
     <string name="pref_set_auto_update_title">Автообновление паспортов</string>
     <string name="pref_set_auto_update_summary">Обновление автоматически запускается при подключении к интернету</string>
     <string name="pref_view_passports_path_title">Расположение паспортов</string>
