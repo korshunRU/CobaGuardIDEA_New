@@ -89,8 +89,8 @@ public class FragmentPassports
         View v =                                                                inflater.inflate(R.layout.fragment_passports, container, false);
 
         if(Boot.sharedPreferences == null) {
-            Boot.sharedPreferences =                            PreferenceManager
-                    .getDefaultSharedPreferences(getContext());
+            Boot.sharedPreferences =                                            PreferenceManager
+                                                                                    .getDefaultSharedPreferences(getContext());
         }
 
         int lastReadId =                                                        Boot.sharedPreferences.getInt(READ_UPDATE_MSG_KEY, 0);

@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion '23.0.3'
 
     signingConfigs {
@@ -18,9 +18,9 @@ android {
     defaultConfig {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
-        targetSdkVersion 23
-        versionCode 35
-        versionName "5.3.1"
+        targetSdkVersion 25
+        versionCode 37
+        versionName "5.3.2"
 //        multiDexEnabled true
     }
 
@@ -37,10 +37,10 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.google.android.gms:play-services-maps:9.8.0'
-    compile 'com.google.android.gms:play-services-vision:9.8.0'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:design:25.1.0'
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
+    compile 'com.google.android.gms:play-services-vision:10.0.1'
 //    compile 'com.google.android.gms:play-services:9.6.0'
 //    compile 'com.google.android.gms:play-services:8.4.0'
 }
