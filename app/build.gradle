@@ -9,9 +9,9 @@ android {
     signingConfigs {
         release {
             storeFile file("krh.jks")
-            storePassword ""
+            storePassword "11"
             keyAlias "krh"
-            keyPassword ""
+            keyPassword "11"
         }
     }
 
