@@ -6,6 +6,9 @@
 
     <string name="img_content_desc">img</string>
 
+    <string name="confirm_question_privacy">Для продолжения использования приложения необходимо
+        принять нашу Политику Конфиденциальности - http://www.sowa.ru/privacy_cobaguard.html</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
@@ -49,9 +52,11 @@
 
 
     <string name="ok">OK</string>
+    <string name="confirm">Принять</string>
     <string name="cancel">Отмена</string>
     <string name="close">Закрыть</string>
 
+    <string name="confirm_title_alert">Внимание!</string>
     <string name="confirm_question">Вы уверены ?</string>
     <string name="total_passports">"Всего паспортов: "</string>
     <string name="create_temp_folder_error">Ошибка создания временной папки</string>

@@ -5,6 +5,7 @@ package ru.korshun.cobaguardidea.app;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -49,6 +50,8 @@ public class RootActivity
     public static SimpleAdapter                 signalsListAdapter =                null;
     public static SimpleAdapter                 objectsListAdapter =                null;
 
+    private final String PRIVACY_KEY = "pref_privacy_key";
+
 
 
     @Override
@@ -63,7 +66,7 @@ public class RootActivity
 
         ActionBarDrawerToggle toggle =                      new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         navigationView =                                    (NavigationView) findViewById(R.id.nav_view);
@@ -76,6 +79,12 @@ public class RootActivity
 
             firstItem.setChecked(true);
             onNavigationItemSelected(firstItem);
+        }
+
+
+        // Проверяем принял ли пользователь нашу политику безопасности
+        if(Boot.sharedPreferences.getInt(PRIVACY_KEY, 0) == 0) {
+            createPrivacyDialog();
         }
 
 //        System.out.println("ALARM: " + Boot.sharedPreferences.getString(
@@ -113,7 +122,7 @@ public class RootActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         boolean isSettingsFragment =                        false;
         Bundle bundle =                                     new Bundle();
@@ -203,6 +212,31 @@ public class RootActivity
 
 
 
+    private void createPrivacyDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(getResources().getText(R.string.confirm_title_alert))
+                .setMessage(getResources().getText(R.string.confirm_question_privacy))
+                .setCancelable(false)
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Boot
+                                .sharedPreferences
+                                .edit()
+                                .putInt(PRIVACY_KEY, 1)
+                                .apply();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                })
+                .create()
+                .show();
+    }
+
 
 
     /**
@@ -220,7 +254,7 @@ public class RootActivity
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
+                        dialog.dismiss();
                     }
                 })
                 .create()
