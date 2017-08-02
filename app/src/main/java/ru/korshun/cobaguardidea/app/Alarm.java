@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.preference.PreferenceManager;
 
 import ru.korshun.cobaguardidea.app.fragments.FragmentSettings;
 
@@ -36,6 +37,10 @@ public class Alarm {
     }
 
     public void createAlarm() {
+
+        if(Boot.sharedPreferences == null) {
+            Boot.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        }
 
         String alarmPeriod = Boot.sharedPreferences.getString(
                 FragmentSettings.ALARM_PERIOD_KEY, Settings.ALARM_PERIOD_ARRAY[1]);

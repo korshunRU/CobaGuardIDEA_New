@@ -268,24 +268,30 @@ public class StartActivity
             List<String> results = new ArrayList<>();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //Method 1 for KitKat & above
+
                 File[] externalDirs = getExternalFilesDirs(null);
 
-                for (File file : externalDirs) {
-                    String path = file.getPath().split("/Android")[0];
+                if(externalDirs != null) {
 
-                    boolean addPath = false;
+                    for (File file : externalDirs) {
 
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        addPath = Environment.isExternalStorageRemovable(file);
-                    }
-                    else{
-                        addPath = Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file));
+                        String path = file.getPath().split("/Android")[0];
+
+                        boolean addPath = false;
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            addPath = Environment.isExternalStorageRemovable(file);
+                        } else {
+                            addPath = Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file));
+                        }
+
+                        if (addPath) {
+                            results.add(path);
+                        }
                     }
 
-                    if(addPath){
-                        results.add(path);
-                    }
                 }
+
             }
 
             if(results.isEmpty()) { //Method 2 for all versions

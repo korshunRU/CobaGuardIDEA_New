@@ -9,9 +9,9 @@ android {
     signingConfigs {
         release {
             storeFile file("krh.jks")
-            storePassword "11"
+            storePassword "230032"
             keyAlias "krh"
-            keyPassword "11"
+            keyPassword "230032"
         }
     }
 
@@ -19,8 +19,8 @@ android {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 38
-        versionName "5.3.2"
+        versionCode 40
+        versionName "5.3.5"
 //        multiDexEnabled true
     }
 

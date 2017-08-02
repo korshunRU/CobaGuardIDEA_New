@@ -5,6 +5,7 @@ package ru.korshun.cobaguardidea.app;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -72,6 +73,10 @@ public class RootActivity
         navigationView =                                    (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        if(Boot.sharedPreferences == null) {
+            Boot.sharedPreferences =                        PreferenceManager.getDefaultSharedPreferences(this);
+        }
 
 
         if(savedInstanceState == null) {
