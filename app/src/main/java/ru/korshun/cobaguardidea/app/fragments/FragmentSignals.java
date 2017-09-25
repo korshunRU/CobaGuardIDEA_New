@@ -8,10 +8,12 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -209,9 +211,22 @@ public class FragmentSignals
                     Intent xlsIntent = new Intent();
 
                     xlsIntent.setAction(Intent.ACTION_VIEW);
-                    xlsIntent.setDataAndType(Uri.parse("file://" + cobaSignalsPath + File.separator + fileName), fileMime);
 
-                    if (xlsIntent.resolveActivity(getActivity().getPackageManager()) != null && new File(cobaSignalsPath + File.separator + fileName).isFile()) {
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                        xlsIntent.setDataAndType(Uri.parse("file://" + cobaSignalsPath + File.separator + fileName), fileMime);
+                    }
+                    else {
+                        xlsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        Uri uri = FileProvider.getUriForFile(
+                                getActivity(),
+                                "ru.korshun.cobaguardidea.app.provider",
+                                new File(cobaSignalsPath + File.separator + fileName)
+                        );
+                        xlsIntent.setData(uri);
+                    }
+
+                    if (xlsIntent.resolveActivity(getActivity().getPackageManager()) != null &&
+                            new File(cobaSignalsPath + File.separator + fileName).isFile()) {
                         startActivity(xlsIntent);
                     }
                 }

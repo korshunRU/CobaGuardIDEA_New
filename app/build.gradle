@@ -19,8 +19,8 @@ android {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 40
-        versionName "5.3.5"
+        versionCode 43
+        versionName "5.3.7"
 //        multiDexEnabled true
     }
 
@@ -39,10 +39,10 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.2.0'
-    compile 'com.android.support:design:25.2.0'
-    compile 'com.google.android.gms:play-services-maps:10.2.0'
-    compile 'com.google.android.gms:play-services-vision:10.2.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.google.android.gms:play-services-maps:11.0.4'
+    compile 'com.google.android.gms:play-services-vision:11.0.4'
 //    compile 'com.google.android.gms:play-services:9.6.0'
 //    compile 'com.google.android.gms:play-services:8.4.0'
 }

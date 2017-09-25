@@ -8,12 +8,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import ru.korshun.cobaguardidea.app.Boot;
+import ru.korshun.cobaguardidea.app.BuildConfig;
 import ru.korshun.cobaguardidea.app.Functions;
 import ru.korshun.cobaguardidea.app.ImgCryptoDecoder;
 import ru.korshun.cobaguardidea.app.MapActivity;
@@ -315,7 +318,21 @@ public class FragmentPassports
                         decoder.decodeFile();
 
                         intent.setAction(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.parse("file://" + tempPassportsPath + File.separator + filesArray[which]), "image/*");
+
+                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                            intent.setDataAndType(Uri.parse("file://" + tempPassportsPath +
+                                    File.separator + filesArray[which]), "image/*");
+                        }
+
+                        else {
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            Uri uri = FileProvider.getUriForFile(
+                                    getActivity(),
+                                    "ru.korshun.cobaguardidea.app.provider",
+                                    new File(tempPassportsPath + File.separator + filesArray[which])
+                            );
+                            intent.setData(uri);
+                        }
 
                         startActivity(intent);
                     }

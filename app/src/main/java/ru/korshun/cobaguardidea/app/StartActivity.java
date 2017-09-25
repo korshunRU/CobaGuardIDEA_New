@@ -271,9 +271,9 @@ public class StartActivity
 
                 File[] externalDirs = getExternalFilesDirs(null);
 
-                if(externalDirs != null) {
+                for (File file : externalDirs) {
 
-                    for (File file : externalDirs) {
+                    if(file.getPath().split("/Android")[0] != null) {
 
                         String path = file.getPath().split("/Android")[0];
 
@@ -288,8 +288,8 @@ public class StartActivity
                         if (addPath) {
                             results.add(path);
                         }
-                    }
 
+                    }
                 }
 
             }
