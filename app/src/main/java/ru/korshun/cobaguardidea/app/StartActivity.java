@@ -273,6 +273,10 @@ public class StartActivity
 
                 for (File file : externalDirs) {
 
+                    if(file == null) {
+                        continue;
+                    }
+
                     if(file.getPath().split("/Android")[0] != null) {
 
                         String path = file.getPath().split("/Android")[0];
@@ -455,6 +459,17 @@ public class StartActivity
 
                 }
 
+            }
+
+
+            /* Дополнение для непонятных телефонов, где не получается получить путь к диску,
+             * например как у Зубова */
+            if(Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) == null) {
+                Boot.sharedPreferences
+                        .edit()
+                        .putString(FragmentSettings.PASSPORTS_PATH_KEY,
+                                getExternalCacheDir().getAbsolutePath() + File.separator + "coba_db")
+                        .apply();
             }
 
         }

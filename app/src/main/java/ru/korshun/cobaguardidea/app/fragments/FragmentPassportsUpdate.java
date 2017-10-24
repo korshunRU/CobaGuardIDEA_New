@@ -307,10 +307,14 @@ public class FragmentPassportsUpdate
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
-                });
+                })
+                .create()
+                .show();
+
+        /* Нахуй закрываем проверку на ввод, ибо частенько при выполнении условия
+        кнопка ОК один хер не доступна
 
         final AlertDialog aDialog = aDialgBuilder.create();
-
         aDialog
                 .setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
@@ -339,7 +343,9 @@ public class FragmentPassportsUpdate
                     }
                 });
 
-        aDialog.show();
+        aDialog.show(); */
+
+
     }
 
 
