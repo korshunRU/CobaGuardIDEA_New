@@ -465,10 +465,16 @@ public class StartActivity
             /* Дополнение для непонятных телефонов, где не получается получить путь к диску,
              * например как у Зубова */
             if(Boot.sharedPreferences.getString(FragmentSettings.PASSPORTS_PATH_KEY, null) == null) {
+
+                String cobaDbPath = getExternalCacheDir().getAbsolutePath() + File.separator + "coba_db";
+
+                if(!new File(cobaDbPath).isDirectory()) {
+                    new File(cobaDbPath).mkdir();
+                }
+
                 Boot.sharedPreferences
                         .edit()
-                        .putString(FragmentSettings.PASSPORTS_PATH_KEY,
-                                getExternalCacheDir().getAbsolutePath() + File.separator + "coba_db")
+                        .putString(FragmentSettings.PASSPORTS_PATH_KEY, cobaDbPath)
                         .apply();
             }
 

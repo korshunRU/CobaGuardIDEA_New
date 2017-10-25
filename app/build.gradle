@@ -19,8 +19,8 @@ android {
         applicationId "ru.korshun.cobaguardidea.app"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 45
-        versionName "5.3.9"
+        versionCode 47
+        versionName "5.3.11"
 //        multiDexEnabled true
     }
 

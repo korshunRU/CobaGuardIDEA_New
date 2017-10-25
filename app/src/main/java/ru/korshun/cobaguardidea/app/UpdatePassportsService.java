@@ -251,37 +251,44 @@ public class UpdatePassportsService
 
         };
 
-        if(passportsPath != null) {
-            File[] listFiles =                              new File(passportsPath).listFiles(filenameFilter);
+        if(passportsPath == null) {
+            return;
+        }
 
-            for(File searchFile : listFiles) {
-                if(searchFile.getName().contains(Settings.OBJECT_PART_DIVIDER)) {
-                    String fileNameSplit[] =                searchFile.getName().substring(
-                                                                    0,
-                                                                    searchFile
-                                                                            .getName()
-                                                                            .lastIndexOf(Settings.OBJECT_PART_DIVIDER)
-                                                            ).split(",");
+        File[] listFiles =                              new File(passportsPath).listFiles(filenameFilter);
 
-                    if (fileNameSplit.length > 1) {
+        if(listFiles == null) {
+            return;
+        }
 
-                        for(String fileNamePart : fileNameSplit) {
+        for (File searchFile : listFiles) {
 
-                            if(fileNamePart.equals(objectNumber)) {
+            if (searchFile.getName().contains(Settings.OBJECT_PART_DIVIDER)) {
+
+                String fileNameSplit[] = searchFile.getName().substring(
+                        0,
+                        searchFile
+                                .getName()
+                                .lastIndexOf(Settings.OBJECT_PART_DIVIDER)
+                ).split(",");
+
+                if (fileNameSplit.length > 1) {
+
+                    for (String fileNamePart : fileNameSplit) {
+
+                        if (fileNamePart.equals(objectNumber)) {
 //                                    System.out.println("myLog: " + searchFile);
-                                searchFile.delete();
-                                break;
-                            }
-
+                            searchFile.delete();
+                            break;
                         }
 
                     }
 
-                    else {
-                        if(fileNameSplit[0].equals(objectNumber)) {
+                } else {
+
+                    if (fileNameSplit[0].equals(objectNumber)) {
 //                                System.out.println("myLog: " + searchFile);
-                            searchFile.delete();
-                        }
+                        searchFile.delete();
                     }
 
                 }
