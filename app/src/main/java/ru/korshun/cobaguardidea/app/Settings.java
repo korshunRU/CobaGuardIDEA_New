@@ -56,7 +56,7 @@ public final class Settings {
 
     public static Pattern DIR_SEPARATOR =                       Pattern.compile("/");
 
-    public static final String[] SERVERS_IP_ARRAY =             new String[]{"85.12.240.55",    "192.168.0.2",      "192.168.43.138"};
+    public static final String[] SERVERS_IP_ARRAY =             new String[]{"85.112.240.155",    "192.168.0.2",      "192.168.43.138"};
     public static final String[] SERVERS_IP_ARRAY_LEGEND =      new String[]{"Интернет",        "Локальная сеть",   "TEST"};
 
     public static final String[] SMS_NUMBERS_ARRAY =            new String[]{"COBA",            "+79049820133",     "InternetSMS"};
